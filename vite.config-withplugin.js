@@ -5,7 +5,7 @@ import svgr from 'vite-plugin-svgr';
 import copy from 'rollup-plugin-copy';
 
 export default defineConfig({
-  base: '/targetx-website/',
+  base: '/targetx-interactive-2/',
   build: {
     assetsInlineLimit: 0, // Disable inlining assets
   },

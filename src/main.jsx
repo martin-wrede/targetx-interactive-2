@@ -9,7 +9,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ContextProvider>
     <BrowserRouter   
-     basename="/targetx-interactive" 
+     basename="/targetx-interactive-2" 
     >
     <App />
     </BrowserRouter >

@@ -12,17 +12,20 @@ export default function Home() {
  
       <h1  style={{fontSize: "26px", color:"orange"}}>Stay on Track with an <br />AI Accountability Coach</h1>
         
-      {/*
+     
        <img
           className="content-image"
-          src= "/targetx-interactive/Home_01.jpg"
+          src= "/targetx-interactive-2/Home_01.jpg"
           title= "Solo-Preneur"
           alt="Solo-Preneur"
           />
-   */}    
-         <Gallery  projectNumber="0" />
+   
+   {/** 
+         <Gallery  projectNumber="0"  />
          
-
+*/}
+<br/>
+<br/>
          <button>Try it now!</button>
          
       </div>

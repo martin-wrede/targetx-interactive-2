@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
-  base:'/targetx-interactive/',
+  base:'/targetx-interactive-2/',
   plugins: [react(), svgr()],
 });

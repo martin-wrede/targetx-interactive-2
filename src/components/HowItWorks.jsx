@@ -85,7 +85,7 @@ Verschaffen Sie sich eine frühe Traktion durch Schöpfer (Ali Abdaal, Thomas Fr
       <div id="sidebar" className="content_sub">
            <img
           className="content-image"
-          src= "/targetx-interactive/public/howitworks.png"
+          src= "/targetx-interactive-2/howitworks.png"
           title= "How it works"
           style={{width:"300px"}}
           

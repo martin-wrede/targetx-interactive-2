@@ -37,8 +37,8 @@ const myRoadmapData = [
 
       const [promptInfo, setPromptInfo] = useState("testprompt")
 
-      {/** 
-       const handleSubmit = (event) => {
+
+        const handleSubmit = (event) => {
     event.preventDefault();
      
      const testUrl = `https://react-chatbot-airtable.pages.dev/?promptInfo=${promptInfo}`;
@@ -47,6 +47,8 @@ const myRoadmapData = [
     console.log(testUrl)
     
     }
+      {/** 
+     
    */}
 
 
@@ -136,7 +138,7 @@ Alter
 
        <img
           className="content-image"
-          src= "/targetx-interactive/public/designthinking.jpg"
+          src= "/targetx-interactive-2/designthinking.jpg"
           title= "Design Thinking"
           alt="Design Thinking"
             

@@ -70,9 +70,16 @@ export default function About(){
       
       <br />
       <br />
-      {data[7] && <img src={`${data[7].sidebar_image}`} alt="Contact"
-      title="Contact"
-       />}
+    
+    <img
+          className="content-image"
+          src= "/targetx-interactive-2/contact-iot-1024x611.jpg"
+          title= "Contact me"
+          alt="Contact me"
+          style={{width:"300px"}}
+          
+          />
+  	      
     </div>
   </div>
 </div>

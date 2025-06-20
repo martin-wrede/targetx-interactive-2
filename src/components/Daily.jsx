@@ -48,7 +48,7 @@ export default function Daily() {
 
   <img
           className="content-image"
-          src= "/targetx-interactive/daily-calendar.jpg"
+          src= "/targetx-interactive-2/daily-calendar.jpg"
           alt="Kalendar"
           title= "Kalendar"
          
@@ -71,7 +71,7 @@ export default function Daily() {
         <br />
              <img
           className="content-image"
-          src= "/targetx-interactive/motivation-daily.png"
+          src= "/targetx-interactive-2/motivation-daily.png"
           alt="Motivation"
           title= "Motivation"
           width="200"

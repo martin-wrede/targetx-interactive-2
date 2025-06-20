@@ -3,7 +3,7 @@
     "gallery_image_title": "Willkommen bei targetx",
     "gallery_images": 3,
     "gallery_image_names": [
-      "/targetx-interactive/Home_01.jpg", "/targetx-interactive/Home_02.jpg", "/targetx-interactive/Home_03.jpg"
+      "/targetx-interactive-2/Home_01.jpg", "/targetx-interactive-2/Home_02.jpg", "/targetx-interactive-2/Home_03.jpg"
     ],
     "gallery_image_title2": "",
     "sidebar_h2": "",
@@ -23,7 +23,7 @@
     "gallery_image_title": "How it works",
     "gallery_images": 1,
     "sidebar_h2": "Design Thinking Workflow",
-    "sidebar_image": "/targetx-interactive/designthinking.jpg",
+    "sidebar_image": "/targetx-interactive-2/designthinking.jpg",
     "sidebar_text": "",
     "content_chapter": [
       {
@@ -191,7 +191,7 @@
     "gallery_images": 0,
     "gallery_image_names": [""],
     "sidebar_h2": "Kontaktiere mich!",
-    "sidebar_image": "/targetx-interactive/contact-iot-1024x611.jpg",
+    "sidebar_image": "/targetx-interactive-2/contact-iot-1024x611.jpg",
     "sidebar_text": "",
         "content_chapter": [
       {
