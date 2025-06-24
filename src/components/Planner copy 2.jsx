@@ -41,7 +41,7 @@ const myRoadmapData = [
         const handleSubmit = (event) => {
     event.preventDefault();
      
-     const testUrl = `https://react-chatbot-air-prompt.pages.dev/?promptInfo=${promptInfo}`;
+     const testUrl = `https://react-chatbot-airtable.pages.dev/?promptInfo=${promptInfo}`;
  
    // window.location.href= testUrl;
     console.log(testUrl)
@@ -55,14 +55,69 @@ const myRoadmapData = [
   return (
  <div>
       <h1>Try the Planner</h1>
+<br/>
+Persönliche Daten: (fließen aktuell nicht in den Prompt mit ein)
+     <br />     <br />
+
+ <form onSubmit={handleSubmit}>
+    
+Alter
+<br />
+  <input  type="text" name="age" 
+  //onChange={changeAge}
+   />
+     <br />     <br />
+    Geschlecht
+<br />
+  <input  type="text" name="sex" 
+  // onChange={changeSex}
+  />
+     <br />     <br />
+
+  Aktueller Wohnort / Land: 
+     <br />    
+
+   <input  type="text" defaultValue="Deutschland"  name="country" 
+   // onChange={changeCountry} 
+   />
+
+     <br />     <br />  <br />
  
+  <b>1 Welches Haupt-Problem willst du lösen?</b>
+      <br />
+  <input type="text"  name="problem" /> 
+
+     <br />     <br />
+ <b>2 Welche Lösung siehst Du dafür?</b>
+
+   <br />
+<input type="text"  name="solution" />
+   <br /> <br />
+  <b>3 In welchem Zeitraum willst Du das Ergebnis fertig haben?</b>
+   <br />  
+<input type="text"  name="period" />
+     <br /> <br />
+  <b>4 Welche Art von Ergebnis erwartest Du?</b>
+  <br/>
+    (Prototyp, fertiges Endprodukt)
+    <input type="text"  name="result" />
+   <br />  
+
+   
+
+     <br /> <br />
+     <button className="button" type="submit">
+          Submit
+        </button>
+        
+ </form>
 
     <br /> <br />
   
-      <h2> Business Idea Input Stand </h2>
+      <h2> 1 Business Idea Input Stand: 21.6</h2>
 
             <iframe
-            src="https://react-chatbot-air-prompt-2.pages.dev/"  // "https://react-chatbot-airtable.pages.dev/"
+            src="https://react-chatbot-air-prompt.pages.dev/"  // "https://react-chatbot-airtable.pages.dev/"
 
             title="External Content"
             width="100%"
@@ -70,9 +125,13 @@ const myRoadmapData = [
             style={{ border: '1px solid #ccc' }}
           ></iframe>
 
+       <h2>2 Generate Plan</h2>
+
         
-        
-        
+        <Roadmap 
+          roadmapData={myRoadmapData}
+          />
+       
        <h2>Zusätzliche Tools / Optional</h2>
 
      <b>Design Thinking Workflow</b>
