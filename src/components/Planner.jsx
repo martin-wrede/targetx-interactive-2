@@ -27,14 +27,19 @@ export default function Planner() {
           ></iframe>
 
        
+       <br />
+         <br />
+         <br />
        
-       <h2>Zusätzliche Tools / Optional</h2>
+       <b>Zusätzliche Tools / Optional</b>
 
-     <b>Design Thinking Workflow</b>
+       <br/>
+
+     <h2>Design Thinking Workflow</h2>
 
        <img
           className="content-image"
-          src= "/targetx-interactive/public/designthinking.jpg"
+          src= "/targetx-interactive-2/public/designthinking.jpg"
           title= "Design Thinking"
           alt="Design Thinking"
             
@@ -42,8 +47,9 @@ export default function Planner() {
           style={{width:"300px"}}
           />
      <br />
+       
 
-     <b> Image Generation</b>
+     <h2> Image Generation</h2>
      <br />
          <iframe
             src="https://react-image-creator-2.pages.dev/"
