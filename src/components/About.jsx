@@ -6,7 +6,7 @@ import { Context } from '../Context';
 
  
 export default function About(){
-//  const {data} = useContext(Context)
+ const {data} = useContext(Context)
   
   let content = null
   if (data[7] && data[7].content_chapter) {
