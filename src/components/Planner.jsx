@@ -52,7 +52,7 @@ export default function Planner() {
      <h2> Image Generation</h2>
      <br />
          <iframe
-            src="https://react-image-creator-2.pages.dev/"
+            src="https://react-image-creator-airtable.pages.dev/"
 
             title="External Content"
               width="100%"
