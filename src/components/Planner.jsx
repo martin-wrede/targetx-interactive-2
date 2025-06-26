@@ -22,7 +22,9 @@ export default function Planner() {
 
             title="External Content"
             width="100%"
-            height="400"
+          //   height="100%"
+            height="600"
+           
             style={{ border: '1px solid #ccc' }}
           ></iframe>
 
@@ -39,7 +41,7 @@ export default function Planner() {
 
        <img
           className="content-image"
-          src= "/targetx-interactive-2/public/designthinking.jpg"
+          src= "/targetx-interactive-2/designthinking.jpg"
           title= "Design Thinking"
           alt="Design Thinking"
             
