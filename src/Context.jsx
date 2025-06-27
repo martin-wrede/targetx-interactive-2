@@ -5,8 +5,8 @@ const Context = React.createContext();
 function ContextProvider({ children }) {
   const [data, setData] = useState([]);
  const [language, setLanguage] = useState(() => {
-
-// language auswahl funktion
+ 
+  // language auswahl funktion
   const saved = localStorage.getItem("lang");
   if (!saved) {
     localStorage.setItem("lang", "de");
@@ -20,9 +20,11 @@ function ContextProvider({ children }) {
   const changeLanguage = (lang) => {
     setLanguage(lang);
     localStorage.setItem("lang", lang);
+    console.log(lang)
   };
 
-  // daten aus dem json objekt holen
+ 
+
   useEffect(() => {
     const getData = async () => {
       const url = `/targetx-interactive-2/data-${language}.json`;

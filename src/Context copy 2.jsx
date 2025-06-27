@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
-
+ 
 const Context = React.createContext();
 
 function ContextProvider({ children }) {
   const [data, setData] = useState([]);
- const [roadmap, setRoadmap] = useState([{
-      date: '2025-06-24',
-      task: 'Write value proposition: What transformation does the reader get?',
-      dailyStartTime: '10:00',
-      dailyHours: 6,
-      motivation: 'Exchange of drinks'
-    }])
+ const [language, setLanguage] = useState(() => {
 
-  const [language, setLanguage] = useState(() => {
+// language auswahl funktion
   const saved = localStorage.getItem("lang");
   if (!saved) {
     localStorage.setItem("lang", "de");
@@ -26,6 +20,7 @@ function ContextProvider({ children }) {
   const changeLanguage = (lang) => {
     setLanguage(lang);
     localStorage.setItem("lang", lang);
+      console.log(lang);
   };
 
   // daten aus dem json objekt holen
@@ -43,13 +38,12 @@ function ContextProvider({ children }) {
         console.error("Failed to fetch data:", error);
       }
     };
+
     getData();
   }, [language]);
- 
- 
 
   return (
-    <Context.Provider value={{ data, language, roadmap, changeLanguage }}>
+    <Context.Provider value={{ data, language, changeLanguage }}>
       {children}
     </Context.Provider>
   );

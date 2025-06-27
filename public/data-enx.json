@@ -1,0 +1,243 @@
+[
+  {
+      "gallery_image_title": "Welcome to targetx",
+      "gallery_images": 1,
+    "gallery_image_names": [
+      "/targetx-website/Home-01.jpg",  
+    ],
+    "gallery_image_title2": "Reise",
+    
+    "sidebar_h2":"",
+      "sidebar_image":"",
+      "sidebar_text":"",
+      "content_h1": "",
+      "content_h1_text": "UX/UI Design as well as visual appearances for companies and institutions are a focus of our work: Digital Media, Print",
+      "content_h2": "",
+      "content_h2_sub": "",
+      "content_h2_image": "",
+      "content_h2_text1": "",
+      "content_h2_text2": "",
+      "button1": "",
+      "button1_url": ""
+  },
+  {
+      "gallery_image_title": "ux-ui-design",
+      "gallery_images": 3,
+      "sidebar_h2":"Design Thinking Workflow",
+      "sidebar_image":"/targetx-website/designthinking.jpg",
+      "sidebar_text":"",
+      "content_chapter":
+        [
+          {
+          "content_h1": "UX/UI Design",
+          "content_h1_text": "Casestudie UX / UI Design",
+          "content_h2": "1 Plutopay",
+          "content_h2_sub": "Casestudie UX / UI Design / Responsive Website, 5-months Course at CareerFoundry, 2021",
+          "content_h2_image": "/targetx-website/Home-03.jpg",
+          "content_h2_text1": "Plutopay is a case study for a fictional banking app for Europe. It offers digital payment methods.",
+          "content_h2_text2": "Check the case study on Behance",
+          "button": "Open Case Study",
+          "button_url": "https://www.behance.net/gallery/129886417/UX-Design"
+          },
+          {
+          "content_h1": "",
+          "content_h1_text": 
+          "Concept UX / UI Design / Native App",
+          "content_h2": "2 Lowpoly Augmented Reality",
+          "content_h2_sub": "Casestudie UX / UI Design / Responsive Website, 5-months Course at CareerFoundry, 2021",
+          "content_h2_image": "/targetx-website/Home-04.jpg",
+          "content_h2_text1": "Lowpoly is a concept for an AR application based on AR.js",
+          "content_h2_text2": "UI Design,JavaScript Prototype",
+          "button": "Open Concept",
+          "button_url": "/targetx-website/ux-ar-lowpoly-en.html"
+          },
+          {
+          "content_h1": "",
+          "content_h1_text": "",
+          "content_h2": "3 felix1.de",
+          "content_h2_sub": "Casestudie UX / UI Design / Responsive Website, 5-months Course at CareerFoundry, 2021",
+          "content_h2_image": "/targetx-website/Home-01.jpg",
+          "content_h2_text1": "felix1.de is an online tax advisor portal for Germany. It offers a personal tax advisor for freelancers, companies and private individuals.",
+          "content_h2_text2": "Improvement of the UI design, design system, Newsletter design ",
+          "button": "Open Project",
+          "button_url": "/targetx-website/ux-felix1-en.html"
+          }
+          ]
+     
+  },
+  {
+      "gallery_image_title": "graphic-design",
+      "gallery_images": "",
+      "gallery_image_names": 
+      [ "/targetx-website/Reise-01.jpg","/targetx-website/Reise-02.jpg", "/targetx-website/Reise-03.jpg", "/targetx-website/Reise-04.jpg", "/targetx-website/Reise-05.jpg"
+       ,"/targetx-website/Reise-06.jpg", "/targetx-website/Reise-07.jpg", "/targetx-website/Reise-08.jpg" ],
+    
+      "sidebar_h2":"Poster-Design",
+      "sidebar_image":"/targetx-website/kulturen-des-wir.jpg", 
+      "sidebar_text":"",
+         "content_chapter": [
+      {
+      "content_h1": "Daily Motivation",
+      "content_h1_text": "Here is a selection of my past projects.",
+      "content_h2": "Project Overview",
+      "content_h2_sub": "",
+      "content_h2_image": "",
+      "content_h2_text1": "",
+      "content_h2_text2": "",
+      "button1": "",
+      "button1_url": ""
+      }
+    ]
+
+  },
+  {
+      "gallery_image_title1": "Lakonia",
+      "gallery_images1": 6,
+      "gallery_image_names": 
+      ["/targetx-website/Lakonia-01.jpg", "/targetx-website/Lakonia-02.jpg","/targetx-website/Lakonia-03.jpg", 
+      "/targetx-website/Lakonia-04.jpg", "/targetx-website/Lakonia-05.jpg","/targetx-website/Lakonia-06.jpg","/targetx-website/Lakonia-07.jpg",
+       "/targetx-website/Lakonia-08.jpg","/targetx-website/Lakonia-09.jpg","/targetx-website/Lakonia-10.jpg",
+       "/targetx-website/Lakonia-11.jpg","/targetx-website/Lakonia-12.jpg","/targetx-website/Lakonia-13.jpg"
+      ],
+      "gallery_image_title2": "Journey",
+      "gallery_images2": 8,
+      "gallery_image2_names": 
+      [ "/targetx-website/Reise-01.jpg","/targetx-website/Reise-02.jpg", "/targetx-website/Reise-03.jpg", "/targetx-website/Reise-04.jpg", "/targetx-website/Reise-05.jpg"
+       ,"/targetx-website/Reise-06.jpg", "/targetx-website/Reise-07.jpg", "/targetx-website/Reise-08.jpg" ],
+      "sidebar_h2":"Gallery Lakonia / Journey",
+      "sidebar_image":"",
+      "sidebar_text":"",
+      "content_chapter":
+        [
+          {
+          "content_h1": "Historic Museum Bremerhavn",
+          "content_h1_text": "A shipwreck from the point of view of survivors: On 22 December 1963, a fire broke out on the Greek cruise ship LAKONIA 180 miles northwest of Madeira. Attempts by the crew to extinguish the fire            failed, so that the fire spread quickly. There were 1036 people on board. After the LAKONIA S.O.S. radioed, the first ships arrived about three hours later to rescue the 651 passengers and 385 crew members of the LAKONIA. Although there were enough lifeboats, at least 131 people died in the shipwreck. in the shipwreck. Of the 385 crew members of the LAKONIA, more than 50 had been hired in Bremerhaven. Most of them worked as service personnel on the LAKONIA. Many came from Bremerhaven...",
+          "content_h2": "Lakonia Ship Disaster",
+          "content_h2_sub": "A shiprokes northwest of Madeira. There were 1036 people on board. After the LAKONIA S.O.S. radioed, the first ships arrived about three hours later to rescue the 651 passengers and 385 crew members of the LAKONIA. Although there were enough lifeboats, at least 131 people died in the shipwreck. in the shipwreck. Of the 385 crew members of the LAKONIA, more than 50 had been hired in Bremerhaven. Most of them worked as service personnel on the LAKONIA. Many came from Bremerhaven...",
+          "content_h2_image": "",
+          "content_h2_text1": "",
+          "content_h2_text2": "Corporate-Design, Visual Concept Exhibition, Catalogue, Information Material, Photography",
+          "button": "",
+          "button_url": ""
+          },
+          {
+          "content_h1": "",
+          "content_h1_text": 
+          "For centuries, North German harbours have been departure points for journeys all over the world. After the foundation of Bremerhaven (1827), the young port also developed port developed within a short time into an important port of departure and destination for intercontinental routes. Bremerhaven became the base for numerous shipping companies and and at the same time a hub for seamen, explorers, businessmen, emigrants and repatriates, soldiers, tourists and many other many other travellers.",
+          "content_h2": "When someone is doing a trip…",
+          "content_h2_sub": "Souvenirs from all over the world. ",
+          "content_h2_image": "",
+          "content_h2_text1": "",
+          "content_h2_text2": "Corporate-Design, Visual Concept Exhibition, Information Material, Photography",
+          "button": "",
+          "button_url": ""
+          },
+          {
+          "content_h1": "",
+          "content_h1_text": "",
+          "content_h2": "Jewish life at the mouth of the Weser 1930-45",
+          "content_h2_sub": "",
+          "content_h2_image": "/targetx-website/Juedisches_Leben_Plakat_A2_DRUCK-768x1081.jpg",
+          "content_h2_text1": "An exhibition project by class 9e of the Lloyd Gymnasium",
+          "content_h2_text2": "Corporate-Design, Visual Concept Exhibition, Information Material",
+          "button": "",
+          "button_url": ""
+          }
+          ]
+     
+      },     
+      {
+            "gallery_image_title1": "Chamberconcert",
+            "gallery_images1": 2,
+            "gallery_image_names": ["/targetx-website/Kammerkonzerte-01.jpg","/targetx-website/Kammerkonzerte-01.jpg"],
+            "sidebar_h2": "Gallery",
+            "sidebar_image":"",
+            "sidebar_text":"",
+            "content_chapter":
+              [
+                {
+                "content_h1": "Chamberconcerts",
+                "content_h1_text": "A series of poster designs for chamber concerts with a purely typographic approach.",
+                "content_h2": "",
+                "content_h2_sub": "",
+                "content_h2_image": "/targetx-website/Kammerkonzerte-03.jpg",
+                "content_h2_text1": "",
+                "content_h2_text2": "Visual Concept",
+                "button": "",
+                "button_url": ""
+                }     
+              ]
+           
+      },
+      {
+        "gallery_image_title1": "Passus",
+        "gallery_images1": 3,
+        "gallery_image_names": ["/targetx-website/Passus-02.jpg","/targetx-website/Passus-03.jpg"],
+   
+        "sidebar_h2":"Gallery",
+        "sidebar_image":"",
+        "sidebar_text":"",
+        "content_chapter":
+          [
+            {
+            "content_h1": "Passus",
+            "content_h1_text": "A new corporate-design was developed for the Berlin software company passus. In addition to the company logo, a corporate design was developed that also extends to the pharmadata software product family. The product logos and the company logo form one unit. Graphically, the family unit office, pocket, compact and tablet becomes recognisable.",
+            "content_h2": "",
+            "content_h2_sub": "",
+            "content_h2_image": "/targetx-website/Passus-01.jpg",
+            "content_h2_text1": "",
+            "content_h2_text2": "Corporate-Design: Logo and applications",
+            "button": "",
+            "button_url": ""
+            }     
+          ]
+  } 
+   ,
+   {
+    "gallery_image_title": "kooperation",
+    "gallery_images": 0,
+    "gallery_image_names": ["" ],
+    "sidebar_h2": "Top e.V.",
+    "sidebar_image": "/targetx-website/Mythcelium-Festival-News-Letter.jpg",
+    "sidebar_text": "",
+        "content_chapter": [
+      {
+    "content_h1": "Cooperations",
+    "content_h1_text": "Here an overview of my cooperation partners and initiatives.",
+    "content_h2": "",
+    "content_h2_sub": "",
+    "content_h2_image": "",
+    "content_h2_text1": "",
+    "content_h2_text2": "",
+    "button1": "",
+    "button1_url": ""
+      }
+    ]
+  },
+  {
+    "gallery_image_title": "kontakt",
+    "gallery_images": 0,
+    "gallery_image_names": [""],
+    "sidebar_h2": "Contact me!",
+    "sidebar_image": "/targetx-website/contact-iot-1024x611.jpg",
+    "sidebar_text": "",
+        "content_chapter": [
+      {
+    "content_h1": "Contact",
+    "content_h1_text": "You can contact me here:",
+    "content_h2": "",
+    "content_h2_sub": "",
+    "content_h2_image": "",
+     "content_h2_text1": "<h2 class=\"page-title entry-title\">Legal Notice</h2><p>Liability Notice:<br />Despite careful content control, we assume no liability for the content of external links. The operators of the linked pages are solely responsible for their content.</p><p>Copyright:<br />All texts, images, films and interactive works are subject to international copyright law. All rights reserved. Without our prior consent, content from this website may not be used in any form (§15 UrhG). Excluded from this are only data that are expressly provided for this purpose.</p><h2 class=\"page-title entry-title\">Privacy Policy</h2><p class=\"p1\"><span class=\"s1\">General Notice and Mandatory Information:</span></p><p class=\"p1\"><span class=\"s1\">Personal data (hereinafter mostly referred to as \"data\") is processed by us only within the scope of necessity and for the purpose of providing a functional and user-friendly internet presence, including its content and the services offered there. According to Art. 4 No. 1 of Regulation (EU) 2016/679, i.e. the General Data Protection Regulation (hereinafter referred to as \"GDPR\"), \"processing\" means any operation or set of operations performed with or without the aid of automated procedures in connection with personal data, such as collection, recording, organization, structuring, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, restriction, erasure or destruction. With the following privacy policy, we inform you in particular about the type, scope, purpose, duration and legal basis of the processing of personal data, insofar as we decide either alone or jointly with others on the purposes and means of processing.</span></p><p class=\"p1\"><span class=\"s1\">I. Information about us as the responsible party</span></p><p class=\"p1\"><span class=\"s1\">The responsible provider of this internet presence in terms of data protection law is:</span></p><p class=\"p1\"><span class=\"s1\">Martin Wrede</span></p><p class=\"p2\"><span class=\"s1\">Kameruner Str. 49</span></p><p class=\"p2\"><span class=\"s1\">13351 Berlin</span></p><p class=\"p1\"><span class=\"s1\">Germany</span></p><p class=\"p1\"><span class=\"s1\">II. Rights of users and data subjects</span></p><p class=\"p1\"><span class=\"s1\">With regard to the data processing described in more detail below, users and data subjects have the right</span></p><p class=\"p1\"><span class=\"s1\">— to confirmation as to whether data concerning them is being processed, to information about the processed data, to further information about the data processing and to copies of the data (see also Art. 15 GDPR)</span></p><p class=\"p1\"><span class=\"s1\">— to rectification or completion of incorrect or incomplete data (see also Art. 16 GDPR)</span></p><p class=\"p1\"><span class=\"s1\">— to immediate deletion of data concerning them (see also Art. 17 GDPR), or, alternatively, if further processing is required according to Art. 17 para. 3 GDPR, to restriction of processing in accordance with Art. 18 GDPR</span></p><p class=\"p1\"><span class=\"s1\">— to receive data concerning them and provided by them and to transmit this data to other providers/controllers (see also Art. 20 GDPR)</span></p><p class=\"p1\"><span class=\"s1\">— to lodge a complaint with the supervisory authority if they believe that data concerning them is being processed by the provider in violation of data protection regulations (see also Art. 77 GDPR).</span></p><p class=\"p1\"><span class=\"s1\">Furthermore, the provider is obliged to inform all recipients to whom data has been disclosed by the provider of any rectification or deletion of data or restriction of processing that occurs pursuant to Articles 16, 17 para. 1, 18 GDPR. However, this obligation does not exist if such notification is impossible or involves disproportionate effort. Notwithstanding this, the user has a right to information about these recipients.</span></p><p class=\"p1\"><span class=\"s1\">Users and data subjects also have the right under Art. 21 GDPR to object to future processing of data concerning them, provided that the data is processed by the provider in accordance with Art. 6 para. 1 lit. f) GDPR. In particular, objection to data processing for the purpose of direct marketing is permissible.</span></p><p class=\"p1\"><span class=\"s1\">III. Information on data processing</span></p><p class=\"p1\"><span class=\"s1\">Your data processed when using our internet presence will be deleted or blocked as soon as the purpose of storage ceases to apply, no legal retention obligations prevent the deletion of the data, and no different information is provided below regarding individual processing procedures.</span></p><p class=\"p1\"><span class=\"s1\">Server data</span></p><p class=\"p1\"><span class=\"s1\">For technical reasons, in particular to ensure a secure and stable internet presence, data is transmitted by your internet browser to us or to our web space provider. These so-called server log files record, among other things, the type and version of your internet browser, the operating system, the website from which you switched to our internet presence (referrer URL), the website(s) of our internet presence that you visit, date and time of the respective access, and the IP address of the internet connection from which our internet presence is used. This data collected in this way is temporarily stored, but not together with other data from you. This storage is based on the legal basis of Art. 6 para. 1 lit. f) GDPR. Our legitimate interest lies in improving, stability, functionality and security of our internet presence. The data will be deleted at the latest after seven days, unless further retention is required for evidence purposes. Otherwise, the data is wholly or partially exempt from deletion until the final clarification of an incident.</span></p><p class=\"p1\"><span class=\"s1\">IV. Contact possibility</span></p><p class=\"p1\"><span class=\"s1\">If you contact us by email, the data you provide will be used to process your inquiry. The provision of data is necessary for processing and answering your inquiry – without providing this data, we cannot answer your inquiry or can only answer it to a limited extent. The legal basis for this processing is Art. 6 para. 1 lit. b) GDPR. Your data will be deleted if your inquiry has been conclusively answered and no legal retention obligations prevent deletion, such as in the case of any subsequent contract processing.</span></p>",
+    "button1": "",
+    "button1_url": ""
+      }
+    ]
+  }
+]
+
+       
+        
+
+    
+

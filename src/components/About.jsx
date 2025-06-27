@@ -28,7 +28,9 @@ export default function About(){
   
   <div className="content_container" id="main">
     <div className="content_main" id="content">
-    <h1>About</h1>
+
+      {content}
+    
      
           <p>targetx Medien-Design</p>
           <p>
@@ -70,15 +72,15 @@ export default function About(){
       
       <br />
       <br />
-    
-    <img
-          className="content-image"
-          src= "/targetx-interactive-2/contact-iot-1024x611.jpg"
-          title= "Contact me"
-          alt="Contact me"
-          style={{width:"300px"}}
+      {data[7] && <img src={`${data[7].sidebar_image}`}
+      title={`${data[7]. gallery_image_title}`}
+       alt={`${data[7]. gallery_image_title}`}
           
-          />
+
+      />}
+          
+      <br />
+     
   	      
     </div>
   </div>

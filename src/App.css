@@ -28,6 +28,9 @@ Author URI: http://targetx.de
   
   }
   
+  img {
+    width: 100%;
+  }
   
   footer {
   
@@ -120,11 +123,11 @@ Author URI: http://targetx.de
             }
         }  
 
-      .button {
+ .button {
   padding: 3px 6px;
   border: 1px solid black;
   border-radius: 4px;
-  background-color: white;
+   background-color:  rgba(255, 255, 255, 0.5); /* #c0bfbf; */
   color: black;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -132,11 +135,12 @@ Author URI: http://targetx.de
 }
 
 .button:hover:not(:disabled) {
-  background-color: #ccc; /* light grey on hover */
+  background-color: #fff; /* light grey on hover */
 }
 
 .button:disabled {
-  background-color: #ccc; /* dark grey background */
+  background-color:rgba(106, 68, 205, 0.4); /*#000099; /*  #333399; /* dark grey background */
+  color: black; /* dark grey background */
   color: black;
   border: 1px solid black;
   opacity: 1; /* remove default fade */

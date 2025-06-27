@@ -3,19 +3,44 @@ import { Context } from '../Context';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/BeautifulMindAI.svg';
 
+import German from '../assets/german_flag_trans30.png';
+import British from '../assets/british_flag_trans30.png';
+
 // ✅ Extracted reusable language switcher
 function LanguageSwitcher({ language, changeLanguage }) {
   return (
    
     <div className="language-switcher">
-       {/*
-      <button className="button" onClick={() => changeLanguage("de")} disabled={language === "de"}>
-        DE
+       {/*   */}
+      <button 
+      style={{backgroundImage:`url(${German})` ,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          width: '30px',
+          height: '20px',
+          border: 'none',
+          cursor: 'pointer',}}
+      
+          className="button" onClick={() => changeLanguage("de")} disabled={language === "de"}>
+       <span style={{color:"white", }} ><b></b>DE</span>
       </button>
-      <button className="button" onClick={() => changeLanguage("en")} disabled={language === "en"}>
-        EN
+  
+      <button className="button"
+      style={{backgroundImage:`url(${British})` ,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          width: '30px',
+          height: '20px',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+
+      onClick={() => changeLanguage("en")} disabled={language === "en"}>
+        <span style={{color:"white", }} ><b></b>EN</span>
       </button>
-      */}
+    
     </div>
     
   );
@@ -61,10 +86,26 @@ export default function Header() {
         {/* ✅ Conditional display of menu */}
         <div id="menu" style={{ display: isMobile && !menuShown ? 'none' : 'block', opacity: isMobile && !menuShown ? 0 : 1 }}>
           <ul>
-            <li><Link to="/how-it-works">How It Works</Link></li>
-        <li><Link to="/planner">Try the Planner</Link></li>
-        <li><Link to="/daily">Daily</Link></li>
-        <li><Link to="/about">About</Link></li>
+            <li><Link to="/how-it-works">
+             {
+              language === "de" ? "Wie es geht" : "How It Works"
+              } 
+           </Link></li>
+        <li><Link to="/planner">
+             {
+              language === "de" ? "Starte den Planer" : "Start the Planner"
+              }
+        </Link></li>
+        <li><Link to="/daily">
+         {
+              language === "de" ? "Tägliche Aufgaben" : "Daily Tasks"
+              }
+        </Link></li>
+        <li><Link to="/about">
+           {
+              language === "de" ? "Über Mich" : "About Me"
+              }
+        </Link></li>
           </ul>
         </div>
       </nav>

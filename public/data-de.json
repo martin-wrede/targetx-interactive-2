@@ -1,80 +1,61 @@
 [
   {
-    "gallery_image_title": "Willkommen bei targetx",
+    "gallery_image_title": "AI Assistent",
     "gallery_images": 3,
     "gallery_image_names": [
       "/targetx-interactive-2/Home_01.jpg", "/targetx-interactive-2/Home_02.jpg", "/targetx-interactive-2/Home_03.jpg"
     ],
     "gallery_image_title2": "",
-    "sidebar_h2": "",
+    "sidebar_h2": "Die meisten Menschen scheitern nicht an der Produktivität, sondern daran, emotional mit ihren Zielen verbunden zu bleiben.",
     "sidebar_image": "",
     "sidebar_text": "",
-    "content_h1": "",
-    "content_h1_text": "UX/UI Design sowie visuelle Auftritte für Unternehmen und Institutionen stehen im Fokus unserer Arbeit: Digitale Medien, Print",
+    "content_h1": "Bleiben Sie auf Kurs mit einem AI Accountability Coach",
+    "content_h1_text": "Accountability AI für 19 €/Monat",
     "content_h2": "",
     "content_h2_sub": "",
     "content_h2_image": "",
     "content_h2_text1": "",
     "content_h2_text2": "",
-    "button1": "",
-    "button1_url": ""
+    "button1": "Starte jetzt",
+    "button1_url": "/targetx-interactive-2/how-it-works"
   },
   {
-    "gallery_image_title": "How it works",
+    "gallery_image_title": "Wie es geht",
     "gallery_images": 1,
-    "sidebar_h2": "Design Thinking Workflow",
-    "sidebar_image": "/targetx-interactive-2/designthinking.jpg",
+    "sidebar_h2": "Wie es geht",
+    "sidebar_image": "/targetx-interactive-2/howitworks.png",
     "sidebar_text": "",
     "content_chapter": [
       {
-        "content_h1":  "How it works",
-        "content_h1_text": "Fallstudie UX / UI Design",
-        "content_h2": "1 Plutopay",
-        "content_h2_sub": "Fallstudie UX / UI Design / Responsive Website, 5-monatiger Kurs bei CareerFoundry, 2021",
-        "content_h2_image": "/targetx-interactive/Home-03.jpg",
-        "content_h2_text1": "Plutopay ist eine Fallstudie für eine fiktive Banking-App für Europa. Sie bietet digitale Zahlungsmethoden.",
-        "content_h2_text2": "Fallstudie auf Behance ansehen",
+        "content_h1":  "Wie es geht",
+        "content_h1_text": "",
+        "content_h2": "AI Accountability Agent",
+        "content_h2_sub": "um Sie zu motivieren, Ihre Ziele zu erreichen:",
+        "content_h2_image": "",
+        "content_h2_text1": "1. Geben Sie Ihre Idee ein",
+        "content_h2_text2": "2. Erhalten Sie eine Analyse",
+        "content_h2_text3": "3. Sie erhalten einen für Ihren persönlichen Termin optimierten Plan",
+        "content_h2_text4": "4. Täglich motiviert werden",
+        "content_h2_text5": "5. Erreichen Sie Ihre Ziele",
         "button": "Fallstudie öffnen",
         "button_url": "https://www.behance.net/gallery/129886417/UX-Design"
-      },
-      {
-        "content_h1": "",
-        "content_h1_text": "Konzept UX / UI Design / Native App",
-        "content_h2": "2 Lowpoly Augmented Reality",
-        "content_h2_sub": "Fallstudie UX / UI Design / Responsive Website, 5-monatiger Kurs bei CareerFoundry, 2021",
-        "content_h2_image": "/targetx-interactive/Home-04.jpg",
-        "content_h2_text1": "Lowpoly ist ein Konzept für eine AR-Anwendung basierend auf AR.js",
-        "content_h2_text2": "UI Design, JavaScript-Prototyp",
-        "button": "Konzept öffnen",
-        "button_url": "/targetx-interactive/ux-ar-lowpoly-de.html"
-      },
-      {
-        "content_h1": "",
-        "content_h1_text": "",
-        "content_h2": "3 felix1.de",
-        "content_h2_sub": "Fallstudie UX / UI Design / Responsive Website, 5-monatiger Kurs bei CareerFoundry, 2021",
-        "content_h2_image": "/targetx-interactive/Home-01.jpg",
-        "content_h2_text1": "felix1.de ist ein Online-Steuerberater-Portal für Deutschland. Es bietet einen persönlichen Steuerberater für Freiberufler, Unternehmen und Privatpersonen.",
-        "content_h2_text2": "Verbesserung des UI-Designs, Designsystem, Newsletter-Design",
-        "button": "Projekt öffnen",
-        "button_url": "/targetx-interactive/ux-felix1-de.html"
       }
     ]
   },
   {
-    "gallery_image_title": "Try the planner",
+    "gallery_image_title": "Starte den Planer",
     "gallery_images": 0,
     "gallery_image_names": [
       ""
     ],
-    "sidebar_h2": "<Motivation",
-    "sidebar_image": "/targetx-interactive/motivation.jpg",      
+    "sidebar_h2": "",
+    "sidebar_image": "",      
     "sidebar_text": "",
         "content_chapter": [
       {
-    "content_h1": "Try the planner",
-    "content_h1_text": "Hier gibt es eine Auswahl aus vergangenen Projekten",
-    "content_h2": "Projekt Übersicht",
+    "content_h1": "Starte den Planer",
+    "content_h1_text": "",
+    "content_h2": "",
     "content_h2_sub": "",
     "content_h2_image": "",
     "content_h2_text1": "",
@@ -165,18 +146,18 @@
     ]
   },
    {
-    "gallery_image_title": "Try the planner",
+    "gallery_image_title": "Tägliche Aufgaben & Motivation",
     "gallery_images": 0,
     "gallery_image_names": [""
     ],
-    "sidebar_h2": "Top e.V.",
-    "sidebar_image": "/targetx-interactive/Mythcelium-Festival-News-Letter.jpg",
+    "sidebar_h2": "",
+    "sidebar_image": "/targetx-interactive-2/motivation-daily.png",
     "sidebar_text": "",
         "content_chapter": [
       {
-    "content_h1": "Daily Motivation",
-    "content_h1_text": "Hier eine Übersicht aus Kooperationspartnern und Initiativen",
-    "content_h2": "",
+    "content_h1": "Tägliche Aufgaben",
+    "content_h1_text": "",
+    "content_h2": "Tägliche Aufgaben & Motivation",
     "content_h2_sub": "",
     "content_h2_image": "",
     "content_h2_text1": "",
@@ -187,15 +168,15 @@
     ]
   },
    {
-    "gallery_image_title": "About",
+    "gallery_image_title": "Über Mich",
     "gallery_images": 0,
     "gallery_image_names": [""],
-    "sidebar_h2": "Kontaktiere mich!",
+    "sidebar_h2": "",
     "sidebar_image": "/targetx-interactive-2/contact-iot-1024x611.jpg",
     "sidebar_text": "",
         "content_chapter": [
       {
-    "content_h1": "About",
+    "content_h1": "Über Mich",
     "content_h1_text": "Sie können mich hier kontaktieren:",
     "content_h2": "",
     "content_h2_sub": "",

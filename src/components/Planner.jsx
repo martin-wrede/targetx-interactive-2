@@ -6,16 +6,31 @@ import { Context } from '../Context';
 
 export default function Planner() {
   const { data } = useContext(Context);
+  
+  let content= null;
+ 
+  if (data[2] && data[2].content_chapter) {
+    content = data[2].content_chapter.map((chapter, index) => (
+      <div key={index}>
+        <h1>{chapter.content_h1}</h1> 
+       {/*
+        <h2>{chapter.content_h2}</h2>
+         */}
+        <span>{chapter.content_h1_text}</span>
+      <br /> 
+      </div>
+    ))
+    }
+
  
   return (
  <div>
-      <h1>Try the Planner </h1>
+   {content}    
 <br/>
 
   
-    <br /> <br />
+    
   
-      <h2> 1 Business Idea Input</h2>
 
             <iframe
             src="https://react-chatbot-air-prompt-2.pages.dev/?part2=none"
@@ -33,6 +48,7 @@ export default function Planner() {
          <br />
          <br />
        
+       {/* */}
        <b>Zusätzliche Tools / Optional</b>
 
        <br/>
@@ -61,7 +77,7 @@ export default function Planner() {
             height="400"
             style={{ border: '1px solid #ccc' }}
           ></iframe>
- 
+         
 </div>
   );
 }
