@@ -6,6 +6,11 @@ import { Context } from '../Context';
 
 export default function Planner() {
   const { data } = useContext(Context);
+  const {lang} = useContext(Context);
+    const { language } = useContext(Context); // ❌ This returns `undefined`
+  // console.log(language); // logs `undefined`
+
+   
   
   let content= null;
  
@@ -33,7 +38,7 @@ export default function Planner() {
   
 
             <iframe
-            src="https://react-chatbot-air-prompt-2.pages.dev/?part2=none"
+            src={`https://react-chatbot-air-prompt-2.pages.dev/?part2=none&lang=${language}`}
 
             title="External Content"
             width="100%"
@@ -47,14 +52,18 @@ export default function Planner() {
        <br />
          <br />
          <br />
+      <h1>Workflows & Tools</h1>   
        
-       {/* */}
-       <b>Zusätzliche Tools / Optional</b>
+      {/*
 
+       {data[2] && data[2].content_h1_2}
+     <br/>   
+     */}
+   <h2>Design Thinking</h2>  
+  {data[2] && data[2].content_h2}
        <br/>
 
-     <h2>Design Thinking Workflow</h2>
-
+  
        <img
           className="content-image"
           src= "/targetx-interactive-2/designthinking.jpg"

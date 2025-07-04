@@ -50,6 +50,8 @@ export default function Header() {
   const [menuShown, setMenuShown] = useState(false);
   const [browserWidth, setBrowserWidth] = useState(window.outerWidth);
   const { language, changeLanguage } = useContext(Context);
+ const { data } = useContext(Context);
+
 
   // ✅ Responsive state updates on resize
   useEffect(() => {
@@ -87,21 +89,27 @@ export default function Header() {
         <div id="menu" style={{ display: isMobile && !menuShown ? 'none' : 'block', opacity: isMobile && !menuShown ? 0 : 1 }}>
           <ul>
             <li><Link to="/how-it-works">
-             {
-              language === "de" ? "Wie es geht" : "How It Works"
+               
+            {/*  {data[1] &&  data[1].content_h1}   */}
+              {
+              language === "de" ? "Wie es geht" : "How it works"
               } 
+          
            </Link></li>
         <li><Link to="/planner">
+              {/*   {data[2] &&  data[2].content_h1}   */}
              {
               language === "de" ? "Starte den Planer" : "Start the Planner"
               }
         </Link></li>
         <li><Link to="/daily">
+               {/*  {data[3] &&  data[3].content_h1}   */}
          {
               language === "de" ? "Tägliche Aufgaben" : "Daily Tasks"
               }
         </Link></li>
         <li><Link to="/about">
+              {/*   {data[4] &&  data[4].content_h1}   */}
            {
               language === "de" ? "Über Mich" : "About Me"
               }

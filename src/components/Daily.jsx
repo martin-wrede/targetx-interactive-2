@@ -1,10 +1,8 @@
 import React, { useContext, useState } from 'react';
 import Gallery from './Gallery';
- 
 import { Context } from '../Context';
 
 export default function Daily() {
-  
   const { data } = useContext(Context);
   
 
