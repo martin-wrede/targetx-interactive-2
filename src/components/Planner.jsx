@@ -21,10 +21,10 @@ export default function Planner() {
 
      style={{
         position: 'relative',   // oder absolute, je nach deinem Layout
-        top: 40,
+        top: 0,
         left: 0,
         width: '100vw',
-        height: '80vh', // calc('100vh' - '40'),     // volle Browserhöhe
+        height: '8000px', // '100vh', // calc('100vh' - '40'),     // volle Browserhöhe
         border: 'none',      // oder dein gewünschter Rahmen
       //  overflow: 'hidden'   // verhindert innere Scrollbars
       }}
