@@ -27,7 +27,7 @@ function ContextProvider({ children }) {
   useEffect(() => {
     const getData = async () => {
   //   const url = `/targetx-interactive-2/data-en.json`;  
-      const url = `/targetx-interactive-2/locales/data-${language}.json`;
+      const url = `/locales/data-${language}.json`;
       try {
         const response = await fetch(url);
         if (!response.ok) {

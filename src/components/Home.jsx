@@ -16,7 +16,7 @@ export default function Home() {
      
        <img
           className="content-image"
-          src= "/targetx-interactive-2/Home_01.jpg"
+          src= "/Home_01.jpg"
           title= "Solo-Preneur"
           alt="Solo-Preneur"
           />

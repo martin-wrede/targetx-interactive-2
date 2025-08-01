@@ -3,7 +3,7 @@
     "gallery_image_title": "AI Assistent",
     "gallery_images": 3,
     "gallery_image_names": [
-      "/targetx-interactive-2/Home_01.jpg", "/targetx-interactive-2/Home_02.jpg", "/targetx-interactive-2/Home_03.jpg"
+      "/Home_01.jpg", "/Home_02.jpg", "/Home_03.jpg"
     ],
     "gallery_image_title2": "",
     "sidebar_h2": "Most people don't fail because of lack of productivity, but because they fail to stay emotionally connected to their goals.",
@@ -17,13 +17,13 @@
     "content_h2_text1": "",
     "content_h2_text2": "",
     "button1": "Try it now",
-    "button1_url": "/targetx-interactive-2/how-it-works"
+    "button1_url": "/how-it-works"
   },
   {
     "gallery_image_title": "How It Works",
     "gallery_images": 1,
     "sidebar_h2": "Wie es geht",
-    "sidebar_image": "/targetx-interactive-2/howitworks.png",
+    "sidebar_image": "/howitworks.png",
     "sidebar_text": "",
     "content_chapter": [
       {
@@ -38,7 +38,7 @@
         "content_h2_text4": "4. Get motivated every day",
         "content_h2_text5": "5. Achieve your goals",
         "button": " ",
-        "button_url": "/targetx-interactive-2/"
+        "button_url": "/"
       }
     ]
   },
@@ -151,7 +151,7 @@
     "gallery_image_names": [""
     ],
     "sidebar_h2": "",
-    "sidebar_image": "/targetx-interactive-2/motivation-daily.png",
+    "sidebar_image": "/motivation-daily.png",
     "sidebar_text": "",
         "content_chapter": [
       {
@@ -172,7 +172,7 @@
     "gallery_images": 0,
     "gallery_image_names": [""],
     "sidebar_h2": "",
-    "sidebar_image": "/targetx-interactive-2/contact-iot-1024x611.jpg",
+    "sidebar_image": "/contact-iot-1024x611.jpg",
     "sidebar_text": "",
         "content_chapter": [
       {
