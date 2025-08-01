@@ -8,9 +8,9 @@ import './index.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ContextProvider>
-    <BrowserRouter   
-     basename="/targetx-interactive-2" 
-    >
+   <BrowserRouter   
+   //   basename="/targetx-interactive-2" 
+    > 
     <App />
     </BrowserRouter >
   </ContextProvider>
