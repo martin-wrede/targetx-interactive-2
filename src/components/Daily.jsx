@@ -8,8 +8,8 @@ export default function Daily() {
 
   let content= null;
  
-  if (data[6] && data[6].content_chapter) {
-    content = data[6].content_chapter.map((chapter, index) => (
+  if (data[3] && data[3].content_chapter) {
+    content = data[3].content_chapter.map((chapter, index) => (
       <div key={index}>
         <h1>{chapter.content_h1}</h1> 
        {/*
@@ -48,13 +48,13 @@ export default function Daily() {
      <br/>   
      */}
    <h2>Design Thinking</h2>  
-  {data[2] && data[2].content_h2}
+  {data[3] && data[3].content_h2}
        <br/>
 
   
        <img
           className="content-image"
-          src= "/targetx-interactive-2/designthinking.jpg"
+          src= "/designthinking.jpg"
           title= "Design Thinking"
           alt="Design Thinking"
             
@@ -92,9 +92,9 @@ export default function Daily() {
             
                          
       
-        {data[6] &&  <img src={`${data[6].sidebar_image}`} 
-         title={`${data[6]. gallery_image_title}`}
-        alt={`${data[6]. gallery_image_title}`}
+        {data[3] &&  <img src={`${data[3].sidebar_image}`} 
+         title={`${data[3]. gallery_image_title}`}
+        alt={`${data[3]. gallery_image_title}`}
         />}
    
         <br />

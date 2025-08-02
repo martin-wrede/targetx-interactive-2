@@ -1,5 +1,7 @@
-import React, { useContext,  useRef, useEffect, useState, useMemo} from 'react';
- 
+// --- START OF FILE App.jsx ---
+
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+
  import Form from './chatbot/Form';
  import ChatInterface from './chatbot/ChatInterface';
 import RoadmapEdit from './chatbot/RoadmapEdit';
@@ -8,6 +10,8 @@ import  SVGTimeline from './chatbot/SVGTimeline';
 import { Context } from '../Context';
 import * as fileUtils from './utils/fileUtils';
 import './PlannerApp.css';
+
+
 
 
 // This function remains the same
@@ -21,6 +25,7 @@ const calculateDateFromOffset = (startDateString, dayOffset, workDays) => {
     const map = { monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 0 };
     return map[day];
   });
+
 
   let currentDate = new Date(startDateString);
   currentDate.setHours(12, 0, 0, 0); 
@@ -81,8 +86,8 @@ const rescaleTaskOffsets = (tasks, targetTotalWorkDays) => {
 };
 
 
-function PlannerApp() {
-  const { data } = useContext(Context);
+export default  function PlannerApp() {
+  const { aiData } = useContext(Context);
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -97,11 +102,7 @@ function PlannerApp() {
   const [workDays, setWorkDays] = useState(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
   const [projectPeriod, setProjectPeriod] = useState(4); 
 
-  const params = new URLSearchParams(location.search);
-  const part1 = params.get('part1');
-  const part2 = params.get('part2');
-  const part3 = params.get('part3');
-  const part4 = params.get('part4');
+
   
   const today = new Date().toISOString().split('T')[0];
 
@@ -169,7 +170,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
   };
 
   const processAIResponse = (content) => {
-    const defaultMotivation = data?.chat_defaultMotivation || 'Erreiche dein Ziel!';
+    const defaultMotivation = aiData?.chat_defaultMotivation || 'Erreiche dein Ziel!';
     const icsContents = fileUtils.extractIcsContent(content);
     const jsonContents = fileUtils.extractJsonContent(content);
     
@@ -220,7 +221,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
       });
       setRoadmapData(allNewEvents);
       setTimeout(() => {
-        const successMessage = (data?.chat_autoImportSuccess || 'Automatisch {count} Termine importiert!').replace('{count}', allNewEvents.length);
+        const successMessage = (aiData?.chat_autoImportSuccess || 'Automatisch {count} Termine importiert!').replace('{count}', allNewEvents.length);
         setMessages(prev => [...prev, { role: 'system', content: successMessage }]);
       }, 500);
     }
@@ -242,7 +243,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
         const content = await file.text();
         let fileType = 'text';
         let parsedEvents = [];
-        const defaultMotivation = data?.chat_defaultMotivation || 'Erreiche dein Ziel!';
+        const defaultMotivation = aiData?.chat_defaultMotivation || 'Erreiche dein Ziel!';
 
         if (file.name.endsWith('.ics')) {
           fileType = 'calendar';
@@ -348,8 +349,8 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
   return (
     <div className="app-container">
-      <div id="part1" style={{ display: part1 }}>
-        <h2>{data?.app_Headline1}</h2>
+      <div id="part1" style={{ display: "block" }}>
+        <h2>{aiData?.app_Headline1}</h2>
         <div id="form-all-id">
           <Form 
             onPromptChange={setGesamtPrompt} 
@@ -360,12 +361,12 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
         </div>
         {gesamtPrompt && (
           <div className="active-prompt-display">
-            <strong>{data?.chat_activePromptLabel || 'Aktiver Prompt'}:</strong> Ready to generate plan.
+            <strong>{aiData?.chat_activePromptLabel || 'Aktiver Prompt'}:</strong> Ready to generate plan.
           </div>
         )}
         
         <ChatInterface
-            data={data}
+            data={aiData}
             messages={messages}
             isLoading={isLoading}
             inputMessage={inputMessage}
@@ -377,22 +378,22 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
         />
       </div>
 
-      <div id="part2" style={{ display: part2 }}>
+      <div id="part2" style={{ display: "block" }}>
         {roadmapToday.length > 0 ? (
           <RoadmapEdit titleDisplay2='block' titleDisplay3='none' roadmapData={roadmapToday} isToday={true} />
         ) : (
           <div className="info-box">
-            {(data?.chat_noTasksToday || 'No Tasks for today! ({today})').replace('{today}', today)}
+            {(aiData?.chat_noTasksToday || 'No Tasks for today! ({today})').replace('{today}', today)}
           </div>
         )}
       </div>
 
-      <div id="part3" style={{ display: part3 }}>
-        <h2>{data?.app_Headline3}</h2>
+      <div id="part3" style={{ display:  "block"}}>
+        <h2>{aiData?.app_Headline3}</h2>
         <p className="info-box">
-          <strong>ℹ️ {data?.chat_infoLabel || 'Info'}:</strong>
+          <strong>ℹ️ {aiData?.chat_infoLabel || 'Info'}:</strong>
           {' '}
-          {(data?.chat_roadmapInfo || 'Der Projektplan wird automatisch aktualisiert, wenn die KI Kalenderdaten erstellt. Aktuell werden {count} Termine angezeigt.').replace('{count}', roadmapData.length)}
+          {(aiData?.chat_roadmapInfo || 'Der Projektplan wird automatisch aktualisiert, wenn die KI Kalenderdaten erstellt. Aktuell werden {count} Termine angezeigt.').replace('{count}', roadmapData.length)}
         </p>
         <RoadmapEdit
           roadmapData={roadmapData}
@@ -402,7 +403,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
         />
       </div>
 
-   <div id="part4" style={{ display: part4 }} 
+   <div id="part4" style={{ display:  "block" }} 
     className="component-wrapper"
    >
         <h2>Interactive SVG Timeline</h2>
@@ -421,4 +422,4 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
   );
 }
 
-export default PlannerApp;
+// export default PlannerApp;

@@ -6,7 +6,7 @@ export default function Form(props) {
   const [gender, setGender] = useState("männlich");
   const [country, setCountry] = useState("Deutschland");
 
-  const { data, language } = useContext(Context); // ✅ Get language from context
+  const { aiData, language } = useContext(Context); // ✅ Get language from context
 
   const [promptInfo, setPromptInfo] = useState({
     problem: "",
@@ -23,13 +23,13 @@ export default function Form(props) {
   const [gesamtPrompt, setGesamtPrompt] = useState("");
 
   const weekDays = [
-    { id: 'monday', label: data.workDays?.monday || 'Montag', short: data.workDaysShort?.monday || 'Mo' },
-    { id: 'tuesday', label: data.workDays?.tuesday || 'Dienstag', short: data.workDaysShort?.tuesday || 'Di' },
-    { id: 'wednesday', label: data.workDays?.wednesday || 'Mittwoch', short: data.workDaysShort?.wednesday || 'Mi' },
-    { id: 'thursday', label: data.workDays?.thursday || 'Donnerstag', short: data.workDaysShort?.thursday || 'Do' },
-    { id: 'friday', label: data.workDays?.friday || 'Freitag', short: data.workDaysShort?.friday || 'Fr' },
-    { id: 'saturday', label: data.workDays?.saturday || 'Samstag', short: data.workDaysShort?.saturday || 'Sa' },
-    { id: 'sunday', label: data.workDays?.sunday || 'Sonntag', short: data.workDaysShort?.sunday || 'So' }
+    { id: 'monday', label: aiData.workDays?.monday || 'Montag', short: aiData.workDaysShort?.monday || 'Mo' },
+    { id: 'tuesday', label: aiData.workDays?.tuesday || 'Dienstag', short: aiData.workDaysShort?.tuesday || 'Di' },
+    { id: 'wednesday', label: aiData.workDays?.wednesday || 'Mittwoch', short: aiData.workDaysShort?.wednesday || 'Mi' },
+    { id: 'thursday', label: aiData.workDays?.thursday || 'Donnerstag', short: aiData.workDaysShort?.thursday || 'Do' },
+    { id: 'friday', label: aiData.workDays?.friday || 'Freitag', short: aiData.workDaysShort?.friday || 'Fr' },
+    { id: 'saturday', label: aiData.workDays?.saturday || 'Samstag', short: aiData.workDaysShort?.saturday || 'Sa' },
+    { id: 'sunday', label: aiData.workDays?.sunday || 'Sonntag', short: aiData.workDaysShort?.sunday || 'So' }
   ];
 
   const [workDays, setWorkDays] = useState(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
@@ -59,22 +59,22 @@ export default function Form(props) {
       industry: formData.get("industry"),
     });
 
-    const AIRole = data.aiRolePrompt;
-    const AIROle2 = data.aiRolePrompt2;
+    const AIRole = aiData.aiRolePrompt;
+    const AIROle2 = aiData.aiRolePrompt2;
 
     const workDaysString = workDays.map(dayId =>
       weekDays.find(day => day.id === dayId)?.label
     ).join(', ');
 
-    const prompt = data.promptTemplate.problem + formData.get("problem")
-      + data.promptTemplate.solution + formData.get("solution")
-      + data.promptTemplate.result + formData.get("result")
-      + data.promptTemplate.period + formData.get("period")
-      + data.promptTemplate.startDate + formData.get("startDate")
-      + data.promptTemplate.dailyStartTime + formData.get("dailyStartTime")
-      + data.promptTemplate.dailyHours + formData.get("dailyHours")
-      + data.promptTemplate.workDays + workDaysString
-      + data.promptTemplate.industry + formData.get("industry");
+    const prompt = aiData.promptTemplate.problem + formData.get("problem")
+      + aiData.promptTemplate.solution + formData.get("solution")
+      + aiData.promptTemplate.result + formData.get("result")
+      + aiData.promptTemplate.period + formData.get("period")
+      + aiData.promptTemplate.startDate + formData.get("startDate")
+      + aiData.promptTemplate.dailyStartTime + formData.get("dailyStartTime")
+      + aiData.promptTemplate.dailyHours + formData.get("dailyHours")
+      + aiData.promptTemplate.workDays + workDaysString
+      + aiData.promptTemplate.industry + formData.get("industry");
 
     const fullPrompt = AIRole + "\n\n" + prompt + AIRole2;
 
@@ -111,11 +111,11 @@ export default function Form(props) {
 
   return (
     <div>
-      {data.personalDataLabel}
+      {aiData.personalDataLabel}
       <br /><br />
 
       <form onSubmit={handleSubmit}>
-        {data.ageLabel}
+        {aiData.ageLabel}
         <br />
         <input
           type="text"
@@ -125,7 +125,7 @@ export default function Form(props) {
         />
         <br /><br />
 
-        {data.genderLabel}
+        {aiData.genderLabel}
         <br />
         <input
           type="text"
@@ -135,7 +135,7 @@ export default function Form(props) {
         />
         <br /><br />
 
-        {data.countryLabel}
+        {aiData.countryLabel}
         <br />
         <input
           type="text"
@@ -146,40 +146,40 @@ export default function Form(props) {
         <br /><br /><br />
 
         <label>
-          <b>{data.question1}</b><br />
+          <b>{aiData.question1}</b><br />
           <input type="text" name="problem" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question2}</b><br />
+          <b>{aiData.question2}</b><br />
           <input type="text" name="solution" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question3}</b><br />
+          <b>{aiData.question3}</b><br />
           <input type="number" name="period" min="1" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question4}</b><br />
-          <em>{data.question4Hint}</em><br />
+          <b>{aiData.question4}</b><br />
+          <em>{aiData.question4Hint}</em><br />
           <input type="text" name="result" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question5}</b><br />
-          <em>{data.question5Hint}</em><br />
+          <b>{aiData.question5}</b><br />
+          <em>{aiData.question5Hint}</em><br />
           <input type="date" name="startDate" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question6}</b><br />
-          <em>{data.question6Hint}</em><br />
+          <b>{aiData.question6}</b><br />
+          <em>{aiData.question6Hint}</em><br />
           <input type="time" name="dailyStartTime" required />
         </label>
         <br /><br />

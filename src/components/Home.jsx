@@ -4,14 +4,17 @@ import { Context } from '../Context';
 
 export default function Home() {
   const { data } = useContext(Context);
+   if (!data || !data[0]) return <div>Loading...</div>;
 
+
+    const content = data[0];
 
 
   return (
     <div>
        <div className="content_container" id="main">
         <div className="content_main" id="content">
-      <h1  style={{fontSize: "26px", color:"orange"}}>   {data[0] && data[0].content_h1}</h1>
+      <h1  style={{fontSize: "26px", color:"orange"}}>   {content.content_h1}</h1>
     
      
        <img
@@ -31,10 +34,11 @@ export default function Home() {
 */}
 <br/>
 <br/>
- {data[0] && data[0].content_h1_text}
+ {content.content_h1_text}
 <br/><br/>
-    <button onClick={() => window.open(button1_url)}>{data[0] && data[0].button1}</button>
-          
+       <button onClick={() => window.open(content.button1_url)}>
+            {content.button1}
+          </button>
       </div>
       <div id="sidebar" className="content_sub">
         <br/> <br/> <br/><br/>
@@ -49,7 +53,7 @@ export default function Home() {
      */}
  <br/>
       <br/>
-      {data[0]  && data[0].sidebar_h2}
+         {content.sidebar_h2}
  <br/> <br/>
         
         </strong>

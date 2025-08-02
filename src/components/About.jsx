@@ -9,8 +9,8 @@ export default function About(){
  const {data} = useContext(Context)
   
   let content = null
-  if (data[7] && data[7].content_chapter) {
-    content = data[7].content_chapter.map((chapter, index) => (
+  if (data[4] && data[4].content_chapter) {
+    content = data[4].content_chapter.map((chapter, index) => (
       <div key={index}>
         <h1>{chapter.content_h1}</h1> 
        {/*
@@ -59,7 +59,7 @@ export default function About(){
     <br/>
  
     <div   
-    dangerouslySetInnerHTML={{ __html:data[7] && data[7].content_chapter[0].content_h2_text1}}
+    dangerouslySetInnerHTML={{ __html:data[4] && data[4].content_chapter[0].content_h2_text1}}
     >
     </div>
 
@@ -72,9 +72,9 @@ export default function About(){
       
       <br />
       <br />
-      {data[7] && <img src={`${data[7].sidebar_image}`}
-      title={`${data[7]. gallery_image_title}`}
-       alt={`${data[7]. gallery_image_title}`}
+      {data[4] && <img src={`${data[4].sidebar_image}`}
+      title={`${data[4]. gallery_image_title}`}
+       alt={`${data[4]. gallery_image_title}`}
           
 
       />}

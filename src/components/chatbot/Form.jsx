@@ -10,18 +10,18 @@ export default function Form({ onPromptChange, onStartDateChange, onWorkDaysChan
   const [gender, setGender ] = useState("männlich");
   const [country, setCountry] = useState("Deutschland");
 
-  const { data, language } = useContext(Context);
+  const { aiData, language } = useContext(Context);
 
   const [generatedPromptMessage, setGeneratedPromptMessage] = useState("");
 
   const weekDays = [
-    { id: 'monday', label: data.workDays?.monday || 'Montag', short: data.workDaysShort?.monday || 'Mo' },
-    { id: 'tuesday', label: data.workDays?.tuesday || 'Dienstag', short: data.workDaysShort?.tuesday || 'Di' },
-    { id: 'wednesday', label: data.workDays?.wednesday || 'Mittwoch', short: data.workDaysShort?.wednesday || 'Mi' },
-    { id: 'thursday', label: data.workDays?.thursday || 'Donnerstag', short: data.workDaysShort?.thursday || 'Do' },
-    { id: 'friday', label: data.workDays?.friday || 'Freitag', short: data.workDaysShort?.friday || 'Fr' },
-    { id: 'saturday', label: data.workDays?.saturday || 'Samstag', short: data.workDaysShort?.saturday || 'Sa' },
-    { id: 'sunday', label: data.workDays?.sunday || 'Sonntag', short: data.workDaysShort?.sunday || 'So' }
+    { id: 'monday', label: aiData.workDays?.monday || 'Montag', short: aiData.workDaysShort?.monday || 'Mo' },
+    { id: 'tuesday', label: aiData.workDays?.tuesday || 'Dienstag', short: aiData.workDaysShort?.tuesday || 'Di' },
+    { id: 'wednesday', label: aiData.workDays?.wednesday || 'Mittwoch', short: aiData.workDaysShort?.wednesday || 'Mi' },
+    { id: 'thursday', label: aiData.workDays?.thursday || 'Donnerstag', short: aiData.workDaysShort?.thursday || 'Do' },
+    { id: 'friday', label: aiData.workDays?.friday || 'Freitag', short: aiData.workDaysShort?.friday || 'Fr' },
+    { id: 'saturday', label: aiData.workDays?.saturday || 'Samstag', short: aiData.workDaysShort?.saturday || 'Sa' },
+    { id: 'sunday', label: aiData.workDays?.sunday || 'Sonntag', short: aiData.workDaysShort?.sunday || 'So' }
   ];
 
   const [workDays, setWorkDays] = useState(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
@@ -100,16 +100,16 @@ Beispiel für eine perfekte, vollständige Antwort:
 
 
 
-    const userContext = data.promptTemplate.problem + problem
-      + data.promptTemplate.solution + solution
-      + data.promptTemplate.result + result
-      + data.promptTemplate.period + period
-      + data.promptTemplate.dailyStartTime + dailyStartTime
-      + data.promptTemplate.dailyHours + dailyHours
-      + data.promptTemplate.workDays + workDaysString
-      + data.promptTemplate.industry + industry;
+    const userContext = aiData.promptTemplate.problem + problem
+      + aiData.promptTemplate.solution + solution
+      + aiData.promptTemplate.result + result
+      + aiData.promptTemplate.period + period
+      + aiData.promptTemplate.dailyStartTime + dailyStartTime
+      + aiData.promptTemplate.dailyHours + dailyHours
+      + aiData.promptTemplate.workDays + workDaysString
+      + aiData.promptTemplate.industry + industry;
     
-    const fullPrompt = (data.aiRolePrompt || "You are a helpful project manager.") + "\n\n" + userContext + "\n\n" + aiOutputInstructions;
+    const fullPrompt = (aiData.aiRolePrompt || "You are a helpful project manager.") + "\n\n" + userContext + "\n\n" + aiOutputInstructions;
 
     // 2. Pass the period (duration in weeks) up to App.jsx
     onPromptChange(fullPrompt);
@@ -129,11 +129,11 @@ Beispiel für eine perfekte, vollständige Antwort:
   // --- No other changes are needed in the JSX return part ---
   return (
     <div>
-      {data.personalDataLabel}
+      {aiData.personalDataLabel}
       <br /><br />
 
       <form onSubmit={handleSubmit}>
-        {data.ageLabel}
+        {aiData.ageLabel}
         <br />
         <input
           type="text"
@@ -143,7 +143,7 @@ Beispiel für eine perfekte, vollständige Antwort:
         />
         <br /><br />
 
-        {data.genderLabel}
+        {aiData.genderLabel}
         <br />
         <input
           type="text"
@@ -153,7 +153,7 @@ Beispiel für eine perfekte, vollständige Antwort:
         />
         <br /><br />
 
-        {data.countryLabel}
+        {aiData.countryLabel}
         <br />
         <input
           type="text"
@@ -164,51 +164,51 @@ Beispiel für eine perfekte, vollständige Antwort:
         <br /><br /><br />
 
         <label>
-          <b>{data.question1}</b><br />
+          <b>{aiData.question1}</b><br />
           <input type="text" name="problem" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question2}</b><br />
+          <b>{aiData.question2}</b><br />
           <input type="text" name="solution" required />
         </label>
         <br /><br />
         <label>
-          <b>{data.question3}</b><br />
+          <b>{aiData.question3}</b><br />
           <input type="number" name="period" min="1" defaultValue="4" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question4}</b><br />
-          <em>{data.question4Hint}</em><br />
+          <b>{aiData.question4}</b><br />
+          <em>{aiData.question4Hint}</em><br />
           <input type="text" name="result" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question5}</b><br />
-          <em>{data.question5Hint}</em><br />
+          <b>{aiData.question5}</b><br />
+          <em>{aiData.question5Hint}</em><br />
           <input type="date" name="startDate" defaultValue={new Date().toISOString().split('T')[0]} required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question6}</b><br />
-          <em>{data.question6Hint}</em><br />
+          <b>{aiData.question6}</b><br />
+          <em>{aiData.question6Hint}</em><br />
           <input type="time" name="dailyStartTime" defaultValue="09:00" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question7}</b><br />
+          <b>{aiData.question7}</b><br />
           <input type="number" name="dailyHours" min="1" max="12" defaultValue="4" required />
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question8}</b><br />
+          <b>{aiData.question8}</b><br />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '5px' }}>
             {weekDays.map(day => (
               <label key={day.id} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
@@ -223,21 +223,21 @@ Beispiel für eine perfekte, vollständige Antwort:
             ))}
           </div>
           <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
-            {data.workDaysSelected || 'Selected'}: {workDays.length} {workDays.length === 1 ? (data.workDaysSingular || 'Tag') : (data.workDaysPlural || 'Tage')}
+            {aiData.workDaysSelected || 'Selected'}: {workDays.length} {workDays.length === 1 ? (aiData.workDaysSingular || 'Tag') : (aiData.workDaysPlural || 'Tage')}
           </small>
         </label>
         <br /><br />
 
         <label>
-          <b>{data.question9}</b><br />
-          <em>{data.question9Hint}</em><br />
+          <b>{aiData.question9}</b><br />
+          <em>{aiData.question9Hint}</em><br />
           <input type="text" name="industry" required />
         </label>
         <br /><br />
 
         <br />
         <button className="button" type="submit">
-          {data.submitButton}
+          {aiData.submitButton}
         </button>
       </form>
 
