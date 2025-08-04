@@ -1,4 +1,4 @@
-// --- START OF FILE SVGTimeline.jsx (Complete and Final) ---
+// --- START OF FILE SVGTimeline.jsx (Complete and Final with new features) ---
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 
@@ -9,14 +9,43 @@ const LABEL_WIDTH = 100;
 const RESIZE_HANDLE_WIDTH = 8;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const HEADER_HEIGHT = 50; // Space at the top for the calendar header
+const PADDING_TOP = 10;   // Extra vertical white space at the top of the SVG
 
-export default function SVGTimeline({ roadmapData = [], onTaskUpdate }) {
+/**
+ * To control the "Show Completed" toggle from a parent component,
+ * pass in `showCompleted` (boolean) and `onToggleShowCompleted` (function) as props.
+ * If they are not provided, the component will manage its own state.
+ */
+export default function SVGTimeline({
+  roadmapData = [],
+  onTaskUpdate,
+  showCompleted: showCompletedProp,
+  onToggleShowCompleted: onToggleShowCompletedProp,
+}) {
   // --- State and Refs ---
   const [dragState, setDragState] = useState(null);
   const [tempTask, setTempTask] = useState(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const svgRef = useRef(null);
   const containerRef = useRef(null);
+  
+  // Internal state for the "Show Completed" toggle if not controlled by props
+  const [internalShowCompleted, setInternalShowCompleted] = useState(true);
+
+  // Determine whether to use controlled props or internal state
+  const showCompleted = showCompletedProp !== undefined ? showCompletedProp : internalShowCompleted;
+  const handleToggleShowCompleted = onToggleShowCompletedProp || (() => {
+    setInternalShowCompleted(prev => !prev);
+  });
+
+  // Filter tasks based on completion status. Assumes tasks have a `completed` boolean property.
+  const visibleTasks = useMemo(() => {
+    if (showCompleted) {
+      return roadmapData;
+    }
+    return roadmapData.filter(task => !task.completed);
+  }, [roadmapData, showCompleted]);
+
 
   // --- Responsive Sizing: Get container width ---
   useEffect(() => {
@@ -39,6 +68,7 @@ export default function SVGTimeline({ roadmapData = [], onTaskUpdate }) {
   }, []); // Runs once on mount
 
   // --- Dynamic Calculations for Timeline Scale ---
+  // Note: This is based on ALL tasks (`roadmapData`) so the scale doesn't change when filtering.
   const { timelineStartDate, pixelsPerDay, totalDays } = useMemo(() => {
     const validTasks = roadmapData.filter(task => task && task.start && task.end);
 
@@ -196,10 +226,10 @@ export default function SVGTimeline({ roadmapData = [], onTaskUpdate }) {
   }, [dragState, handleMouseMove, handleMouseUp, cancelDrag]);
 
   // --- Data for Rendering ---
-  const height = (TRACK_HEIGHT * roadmapData.length) + HEADER_HEIGHT;
-  const tasksToRender = useMemo(() => roadmapData.map(task =>
+  const height = (TRACK_HEIGHT * visibleTasks.length) + HEADER_HEIGHT + PADDING_TOP;
+  const tasksToRender = useMemo(() => visibleTasks.map(task =>
     dragState && task.id === dragState.id ? tempTask : task
-  ), [roadmapData, dragState, tempTask]);
+  ), [visibleTasks, dragState, tempTask]);
 
   return (
     <div
@@ -240,132 +270,177 @@ export default function SVGTimeline({ roadmapData = [], onTaskUpdate }) {
             }
           `}</style>
         </defs>
-
-        {/* --- Timeline Header (Calendar) --- */}
-        <g className="timeline-header" transform={`translate(${LABEL_WIDTH}, 0)`}>
-          {(() => {
-              const months = [];
-              if (totalDays > 0) {
-                let currentDate = new Date(timelineStartDate);
-                for (let i = 0; i < totalDays; i++) {
-                    const monthName = currentDate.toLocaleString('default', { month: 'short' });
-                    if (currentDate.getDate() === 1 || i === 0) {
-                        months.push({
-                            name: `${monthName} ${currentDate.getFullYear()}`,
-                            x: dateToX(currentDate)
-                        });
-                    }
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-              }
-              return months.map(month => (
-                  <text key={month.name} x={month.x + 5} y="20" fill="#555" fontSize="12" fontFamily="sans-serif">
-                      {month.name}
-                  </text>
-              ));
-          })()}
-          {Array.from({ length: Math.ceil(totalDays) }).map((_, i) => {
-              const date = new Date(timelineStartDate);
-              date.setDate(date.getDate() + i);
-              const x = dateToX(date);
-              return (
-                  <g key={`day-tick-${i}`}>
-                      <line
-                          x1={x} y1={HEADER_HEIGHT - 30}
-                          x2={x} y2={height}
-                          stroke="#e0e0e0"
-                          strokeDasharray={date.getDay() === 0 || date.getDay() === 6 ? "4 4" : "none"}
-                      />
-                      <g>
-                          <text
-                              x={x + 4} y={HEADER_HEIGHT - 20}
-                              fontSize="10"
-                              fontFamily="sans-serif"
-                              fill={date.getDay() === 0 || date.getDay() === 6 ? "#c62828" : "#777"}
-                              fontWeight={date.getDay() === 0 || date.getDay() === 6 ? "bold" : "normal"}
-                          >
-                              {['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}
-                          </text>
-                          <text x={x + 4} y={HEADER_HEIGHT - 5} fontSize="10" fontFamily="sans-serif" fill="#777">
-                              {date.getDate()}
-                          </text>
-                      </g>
-                  </g>
-              );
-          })}
-        </g>
         
-        {/* --- Timeline Body (Tasks) --- */}
-        <g className="timeline-body" transform={`translate(0, ${HEADER_HEIGHT})`}>
-          {roadmapData.map((task, i) => {
-              const displayName = task.task.length > 20 ? `${task.task.substring(0, 18)}...` : task.task;
-              return (
-                <text
-                  key={`label-${task.id}`}
-                  x={LABEL_WIDTH - 10} y={i * TRACK_HEIGHT + 25}
-                  textAnchor="end" fontSize="12" fill="#333" title={task.task} fontFamily="sans-serif"
-                >
-                  {displayName}
-                </text>
-              );
-          })}
+        {/* Main content group with top padding ${PADDING_TOP */}
+        <g transform={`translate(0, ${PADDING_TOP})`}>
 
-          {roadmapData.map((_, i) => (
-            <line
-              key={`track-${i}`}
-              x1={LABEL_WIDTH} x2={containerWidth}
-              y1={(i + 1) * TRACK_HEIGHT} y2={(i + 1) * TRACK_HEIGHT}
-              stroke="#e0e0e0"
-            />
-          ))}
+          {/* --- "Show Completed" Checkbox --- */}
+          {containerWidth > 350 && (
+            <g
+
+              transform={`translate(${containerWidth - 180}, 10)`}
+              onClick={handleToggleShowCompleted}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              {/* The checkbox box */}
+              <rect
+                x="0" y="-7"
+                width="14" height="14"
+                rx="2"
+                stroke="#333"
+                strokeWidth="1.5"
+                fill="white"
+              />
+              {/* The checkmark, shown conditionally */}
+              {showCompleted && (
+                <polyline
+                  points="3,0 6,4 11,-1"
+                  fill="none"
+                  stroke="#333"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              <text
+                x="22" y="0"
+                fontFamily="sans-serif"
+                fontSize="12"
+                fill="#333"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                Show completed Tasks
+              </text>
+            </g>
+          )}
+
+          {/* --- Timeline Header (Calendar) --- */}
+          <g className="timeline-header" transform={`translate(${LABEL_WIDTH}, 10)`}>
+            {(() => {
+                const months = [];
+                if (totalDays > 0) {
+                  let currentDate = new Date(timelineStartDate);
+                  for (let i = 0; i < totalDays; i++) {
+                      const monthName = currentDate.toLocaleString('default', { month: 'short' });
+                      if (currentDate.getDate() === 1 || i === 0) {
+                          months.push({
+                              name: `${monthName} ${currentDate.getFullYear()}`,
+                              x: dateToX(currentDate)
+                          });
+                      }
+                      currentDate.setDate(currentDate.getDate() + 1);
+                  }
+                }
+                return months.map(month => (
+                    <text key={month.name} x={month.x + 5} y="20" fill="#555" fontSize="12" fontFamily="sans-serif">
+                        {month.name}
+                    </text>
+                ));
+            })()}
+            {Array.from({ length: Math.ceil(totalDays) }).map((_, i) => {
+                const date = new Date(timelineStartDate);
+                date.setDate(date.getDate() + i);
+                const x = dateToX(date);
+                return (
+                    <g key={`day-tick-${i}`}>
+                        <line
+                            x1={x} y1={HEADER_HEIGHT - 30}
+                            x2={x} y2={height - PADDING_TOP} // Adjust line height to fill new space
+                            stroke="#e0e0e0"
+                            strokeDasharray={date.getDay() === 0 || date.getDay() === 6 ? "4 4" : "none"}
+                        />
+                        <g>
+                            <text
+                                x={x + 4} y={HEADER_HEIGHT - 20}
+                                fontSize="10"
+                                fontFamily="sans-serif"
+                                fill={date.getDay() === 0 || date.getDay() === 6 ? "#c62828" : "#777"}
+                                fontWeight={date.getDay() === 0 || date.getDay() === 6 ? "bold" : "normal"}
+                            >
+                                {['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}
+                            </text>
+                            <text x={x + 4} y={HEADER_HEIGHT - 5} fontSize="10" fontFamily="sans-serif" fill="#777">
+                                {date.getDate()}
+                            </text>
+                        </g>
+                    </g>
+                );
+            })}
+          </g>
           
-          {tasksToRender
-            .filter(task => task && task.start && task.end)
-            .map((task) => {
-              const yIndex = roadmapData.findIndex(t => t.id === task.id);
-              if (yIndex === -1) return null;
-
-              const x = dateToX(task.start) + LABEL_WIDTH;
-              const taskWidth = Math.max(pixelsPerDay / 2, dateToX(task.end) - dateToX(task.start) + pixelsPerDay);
-              const y = yIndex * TRACK_HEIGHT + 10;
-              
-              return (
-                <g
-                  key={task.id}
-                  className="task-group"
-                  onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'move'); }}
-                  style={{ cursor: 'grab' }}
-                >
-                  <rect x={x} y={y} width={taskWidth} height={BAR_HEIGHT} rx={4} fill={task.color} />
-                  <rect
-                    x={x - RESIZE_HANDLE_WIDTH / 2} y={y}
-                    width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT}
-                    fill="transparent"
-                    style={{ cursor: 'ew-resize' }}
-                    onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'resize-start'); }}
-                  />
-                  <rect
-                    x={x + taskWidth - RESIZE_HANDLE_WIDTH / 2} y={y}
-                    width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT}
-                    fill="transparent"
-                    style={{ cursor: 'ew-resize' }}
-                    onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'resize-end'); }}
-                  />
-                  <foreignObject
-                    x={x + 5}
-                    y={y - 45}
-                    width="250"
-                    height="100"
-                    className="svg-tooltip-container"
+          {/* --- Timeline Body (Tasks) --- */}
+          <g className="timeline-body" transform={`translate(0, ${HEADER_HEIGHT})`}>
+            {visibleTasks.map((task, i) => {
+                const displayName = task.task.length > 20 ? `${task.task.substring(0, 18)}...` : task.task;
+                return (
+                  <text
+                    key={`label-${task.id}`}
+                    x={LABEL_WIDTH - 10} y={i * TRACK_HEIGHT + 25}
+                    textAnchor="end" fontSize="12" fill="#333" title={task.task} fontFamily="sans-serif"
                   >
-                    <div xmlns="http://www.w3.org/1999/xhtml" className="tooltip-wrapper">
-                      <strong>Task:</strong> {task.task}<br />
-                      <strong>Dates:</strong> {task.start} to {task.end}
-                    </div>
-                  </foreignObject>
-                </g>
-              );
-          })}
+                    {displayName}
+                  </text>
+                );
+            })}
+
+            {visibleTasks.map((_, i) => (
+              <line
+                key={`track-${i}`}
+                x1={LABEL_WIDTH} x2={containerWidth}
+                y1={(i + 1) * TRACK_HEIGHT} y2={(i + 1) * TRACK_HEIGHT}
+                stroke="#e0e0e0"
+              />
+            ))}
+            
+            {tasksToRender
+              .filter(task => task && task.start && task.end)
+              .map((task) => {
+                const yIndex = visibleTasks.findIndex(t => t.id === task.id);
+                if (yIndex === -1) return null;
+
+                const x = dateToX(task.start) + LABEL_WIDTH;
+                const taskWidth = Math.max(pixelsPerDay / 2, dateToX(task.end) - dateToX(task.start) + pixelsPerDay);
+                const y = yIndex * TRACK_HEIGHT + 10;
+                
+                return (
+                  <g
+                    key={task.id}
+                    className="task-group"
+                    onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'move'); }}
+                    style={{ cursor: 'grab' }}
+                  >
+                    <rect x={x} y={y} width={taskWidth} height={BAR_HEIGHT} rx={4} fill={task.color} />
+                    <rect
+                      x={x - RESIZE_HANDLE_WIDTH / 2} y={y}
+                      width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT}
+                      fill="transparent"
+                      style={{ cursor: 'ew-resize' }}
+                      onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'resize-start'); }}
+                    />
+                    <rect
+                      x={x + taskWidth - RESIZE_HANDLE_WIDTH / 2} y={y}
+                      width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT}
+                      fill="transparent"
+                      style={{ cursor: 'ew-resize' }}
+                      onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(e, task, 'resize-end'); }}
+                    />
+                    <foreignObject
+                      x={x + 5}
+                      y={y - 45}
+                      width="250"
+                      height="100"
+                      className="svg-tooltip-container"
+                    >
+                      <div xmlns="http://www.w3.org/1999/xhtml" className="tooltip-wrapper">
+                        <strong>Task:</strong> {task.task}<br />
+                        <strong>Dates:</strong> {task.start} to {task.end}
+                      </div>
+                    </foreignObject>
+                  </g>
+                );
+            })}
+          </g>
         </g>
       </svg>
     </div>

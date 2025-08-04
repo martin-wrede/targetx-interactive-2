@@ -1,0 +1,342 @@
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
+
+// --- Constants & Defaults ---
+const TRACK_HEIGHT = 40;
+const BAR_HEIGHT = 20;
+const LABEL_WIDTH = 100;
+const RESIZE_HANDLE_WIDTH = 8;
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const HEADER_HEIGHT = 50;
+const PADDING_TOP = 10;
+const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // Mon, Tue, Wed, Thu, Fri
+
+// --- Utility Functions for Working Day Calculations ---
+
+/**
+ * Adds a specified number of working days to a given date.
+ * @param {Date | string} date - The starting date.
+ * @param {number} daysToAdd - The number of working days to add (can be negative).
+ * @param {number[]} workingDays - Array of working days (0=Sun, 1=Mon...).
+ * @returns {Date} The new date.
+ */
+function addWorkingDays(date, daysToAdd, workingDays) {
+  const newDate = new Date(date);
+  newDate.setHours(12, 0, 0, 0);
+  let daysAdded = 0;
+  const increment = daysToAdd > 0 ? 1 : -1;
+
+  while (daysAdded < Math.abs(daysToAdd)) {
+    newDate.setDate(newDate.getDate() + increment);
+    if (workingDays.includes(newDate.getDay())) {
+      daysAdded++;
+    }
+  }
+  return newDate;
+}
+
+/**
+ * Calculates the duration of a task in working days.
+ * @param {Date | string} start - The start date.
+ * @param {Date | string} end - The end date.
+ * @param {number[]} workingDays - Array of working days.
+ * @returns {number} The number of working days.
+ */
+function calculateWorkingDaysDuration(start, end, workingDays) {
+  let count = 0;
+  const current = new Date(start);
+  const endDate = new Date(end);
+  current.setHours(12, 0, 0, 0);
+  endDate.setHours(12, 0, 0, 0);
+
+  while (current <= endDate) {
+    if (workingDays.includes(current.getDay())) {
+      count++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return Math.max(1, count); // A task is at least 1 day long
+}
+
+export default function SVGTimeline({
+  roadmapData = [],
+  onTaskUpdate,
+  workingDays = DEFAULT_WORKING_DAYS, // New prop
+  showCompleted: showCompletedProp,
+  onToggleShowCompleted: onToggleShowCompletedProp,
+}) {
+  // --- State and Refs ---
+  const [dragState, setDragState] = useState(null);
+  const [tempUpdates, setTempUpdates] = useState({});
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
+  const [selectionBox, setSelectionBox] = useState(null);
+  const svgRef = useRef(null);
+  const containerRef = useRef(null);
+  
+  const [respectWeekends, setRespectWeekends] = useState(true); // New state for the toggle
+  const [internalShowCompleted, setInternalShowCompleted] = useState(true);
+  
+  const showCompleted = showCompletedProp !== undefined ? showCompletedProp : internalShowCompleted;
+  const handleToggleShowCompleted = onToggleShowCompletedProp || (() => setInternalShowCompleted(p => !p));
+  
+  const visibleTasks = useMemo(() => {
+    return showCompleted ? roadmapData : roadmapData.filter(task => !task.completed);
+  }, [roadmapData, showCompleted]);
+
+  // --- (The rest of the setup hooks: ResizeObserver, timeline scale, etc. remain unchanged) ---
+    useEffect(() => {
+    const observer = new ResizeObserver(entries => {
+      if (entries[0]) setContainerWidth(entries[0].contentRect.width);
+    });
+    const currentContainer = containerRef.current;
+    if (currentContainer) observer.observe(currentContainer);
+    return () => {
+      if (currentContainer) observer.unobserve(currentContainer);
+    };
+  }, []);
+
+  const { timelineStartDate, pixelsPerDay, totalDays } = useMemo(() => {
+    const validTasks = roadmapData.filter(task => task && task.start && task.end);
+    if (validTasks.length === 0 || containerWidth === 0) {
+      return { timelineStartDate: new Date(), pixelsPerDay: 20, totalDays: 30 };
+    }
+    const allDates = validTasks.flatMap(task => [new Date(task.start), new Date(task.end)]);
+    const validDates = allDates.filter(date => !isNaN(date.getTime()));
+    if (validDates.length === 0) {
+      return { timelineStartDate: new Date(), pixelsPerDay: 20, totalDays: 30 };
+    }
+    const minDate = new Date(Math.min(...validDates));
+    const maxDate = new Date(Math.max(...validDates));
+    const startDate = new Date(minDate);
+    startDate.setDate(minDate.getDate() - 2);
+    const endDate = new Date(maxDate);
+    endDate.setDate(maxDate.getDate() + 2);
+    const totalDaysValue = Math.max(1, (endDate - startDate) / MS_PER_DAY);
+    const availableWidth = containerWidth - LABEL_WIDTH;
+    const pixelsPerDayValue = availableWidth > 0 ? availableWidth / totalDaysValue : 0;
+    return { timelineStartDate: startDate, pixelsPerDay: pixelsPerDayValue, totalDays: totalDaysValue };
+  }, [roadmapData, containerWidth]);
+
+  const dateToX = useCallback(date => ((new Date(date) - timelineStartDate) / MS_PER_DAY) * pixelsPerDay, [timelineStartDate, pixelsPerDay]);
+  const getMousePosInSVG = useCallback(e => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const CTM = svg.getScreenCTM();
+    return { x: (e.clientX - CTM.e) / CTM.a, y: (e.clientY - CTM.f) / CTM.d };
+  }, []);
+
+  const getTaskGeometry = useCallback((task) => {
+    const yIndex = visibleTasks.findIndex(t => t.id === task.id);
+    if (yIndex === -1) return null;
+    const x = dateToX(task.start) + LABEL_WIDTH;
+    const width = Math.max(pixelsPerDay / 2, dateToX(task.end) - dateToX(task.start) + pixelsPerDay);
+    const y = yIndex * TRACK_HEIGHT + 10 + HEADER_HEIGHT + PADDING_TOP;
+    return { x, y, width, height: BAR_HEIGHT };
+  }, [visibleTasks, dateToX, pixelsPerDay]);
+  
+  // --- UPDATED Event Handlers ---
+
+  const handleMouseDown = (e, task, type) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { x } = getMousePosInSVG(e);
+    let currentSelection = selectedTaskIds;
+    if (!e.shiftKey && !selectedTaskIds.includes(task.id)) {
+        currentSelection = [task.id];
+    } else if (e.shiftKey && !selectedTaskIds.includes(task.id)) {
+        currentSelection = [...selectedTaskIds, task.id];
+    }
+    setSelectedTaskIds(currentSelection);
+    
+    document.body.style.cursor = type === 'move' ? 'grabbing' : 'ew-resize';
+    const originalSelection = roadmapData.filter(t => currentSelection.includes(t.id));
+    setDragState({ type, initialMouseX: x, originalSelection, singleTaskId: task.id });
+    setTempUpdates({});
+  };
+
+  const handleContainerMouseDown = (e) => {
+    e.preventDefault();
+    setSelectedTaskIds([]);
+    const { x, y } = getMousePosInSVG(e);
+    setSelectionBox({ startX: x, startY: y, currentX: x, currentY: y });
+  };
+
+  const handleMouseMove = useCallback((e) => {
+    const { x: currentMouseX, y: currentMouseY } = getMousePosInSVG(e);
+    if (selectionBox && !dragState) {
+      setSelectionBox(prev => ({ ...prev, currentX: currentMouseX, currentY: currentMouseY }));
+      return;
+    }
+    if (!dragState || pixelsPerDay === 0) return;
+
+    const dx = currentMouseX - dragState.initialMouseX;
+    const dayDelta = Math.round(dx / pixelsPerDay);
+    const newUpdates = {};
+
+    // --- Core Logic Update for "Respect Weekends" ---
+    if (respectWeekends) {
+        if (dragState.type === 'move') {
+            dragState.originalSelection.forEach(task => {
+                const newStart = addWorkingDays(task.start, dayDelta, workingDays);
+                const duration = calculateWorkingDaysDuration(task.start, task.end, workingDays);
+                const newEnd = addWorkingDays(newStart, duration - 1, workingDays);
+                newUpdates[task.id] = { ...task, start: newStart.toISOString().split('T')[0], end: newEnd.toISOString().split('T')[0] };
+            });
+        } else { // Handle resize respecting weekends
+            const task = dragState.originalSelection.find(t => t.id === dragState.singleTaskId);
+            if (!task) return;
+            let newStart = new Date(task.start);
+            let newEnd = new Date(task.end);
+
+            if (dragState.type === 'resize-start') {
+                newStart = addWorkingDays(task.start, dayDelta, workingDays);
+                if (newStart > newEnd) newStart = newEnd;
+            } else if (dragState.type === 'resize-end') {
+                newEnd = addWorkingDays(task.end, dayDelta, workingDays);
+                if (newEnd < newStart) newEnd = newStart;
+            }
+            newUpdates[task.id] = { ...task, start: newStart.toISOString().split('T')[0], end: newEnd.toISOString().split('T')[0] };
+        }
+    } else {
+        // --- Original logic (ignores weekends) ---
+        dragState.originalSelection.forEach(task => {
+            if (dragState.type === 'move' || task.id === dragState.singleTaskId) {
+                const originalStart = new Date(task.start);
+                const originalEnd = new Date(task.end);
+                let newStart = new Date(originalStart);
+                let newEnd = new Date(originalEnd);
+                if (dragState.type === 'move') {
+                    newStart.setDate(originalStart.getDate() + dayDelta);
+                    newEnd.setDate(originalEnd.getDate() + dayDelta);
+                } else if (dragState.type === 'resize-start') {
+                    newStart.setDate(originalStart.getDate() + dayDelta);
+                    if (newStart > newEnd) newStart = newEnd;
+                } else if (dragState.type === 'resize-end') {
+                    newEnd.setDate(originalEnd.getDate() + dayDelta);
+                    if (newEnd < newStart) newEnd = newStart;
+                }
+                newUpdates[task.id] = { ...task, start: newStart.toISOString().split('T')[0], end: newEnd.toISOString().split('T')[0] };
+            }
+        });
+    }
+
+    setTempUpdates(newUpdates);
+  }, [dragState, selectionBox, getMousePosInSVG, pixelsPerDay, respectWeekends, workingDays]);
+
+  const handleMouseUp = useCallback(() => {
+    if (selectionBox) {
+        const { startX, startY, currentX, currentY } = selectionBox;
+        const box = { x1: Math.min(startX, currentX), y1: Math.min(startY, currentY), x2: Math.max(startX, currentX), y2: Math.max(startY, currentY) };
+        const ids = visibleTasks.filter(task => {
+            const geom = getTaskGeometry(task);
+            if (!geom) return false;
+            return box.x1 < geom.x + geom.width && box.x2 > geom.x && box.y1 < geom.y + geom.height && box.y2 > geom.y;
+        }).map(task => task.id);
+        setSelectedTaskIds(ids);
+        setSelectionBox(null);
+    }
+    if (dragState) {
+        if (onTaskUpdate && Object.keys(tempUpdates).length > 0) {
+            const updatedData = roadmapData.map(task => tempUpdates[task.id] || task);
+            onTaskUpdate(updatedData);
+        }
+        document.body.style.cursor = 'default';
+        setDragState(null);
+        setTempUpdates({});
+    }
+  }, [selectionBox, dragState, tempUpdates, roadmapData, onTaskUpdate, visibleTasks, getTaskGeometry]);
+
+  // --- (Global event listeners remain the same) ---
+  useEffect(() => {
+    if (!dragState && !selectionBox) return;
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'default';
+    };
+  }, [dragState, selectionBox, handleMouseMove, handleMouseUp]);
+  
+  const height = (TRACK_HEIGHT * visibleTasks.length) + HEADER_HEIGHT + PADDING_TOP;
+  const tasksToRender = useMemo(() => visibleTasks.map(task => tempUpdates[task.id] || task), [visibleTasks, tempUpdates]);
+  const selectionBoxRect = useMemo(() => {
+      if (!selectionBox) return null;
+      const { startX, startY, currentX, currentY } = selectionBox;
+      return { x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(startX - currentX), height: Math.abs(startY - currentY) };
+  }, [selectionBox]);
+
+  // --- Checkbox/Toggle rendering component ---
+  const CheckboxToggle = ({ label, checked, onToggle, x, y }) => (
+    <g transform={`translate(${x}, ${y})`} onClick={onToggle} style={{ cursor: 'pointer', userSelect: 'none' }}>
+      <rect x="0" y="-7" width="14" height="14" rx="2" stroke="#333" strokeWidth="1.5" fill="white" />
+      {checked && (<polyline points="3,0 6,4 11,-1" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>)}
+      <text x="22" y="0" fontFamily="sans-serif" fontSize="12" fill="#333" textAnchor="start" dominantBaseline="middle">{label}</text>
+    </g>
+  );
+
+  return (
+    <div ref={containerRef} style={{ position: "relative", width: "100%", boxSizing: 'border-box' }}>
+      <svg ref={svgRef} width={containerWidth} height={height} style={{ border: "1px solid #ccc", display: 'block', borderRadius: '8px' }} onMouseDown={handleContainerMouseDown}>
+        {/* ... Defs and Styles are unchanged ... */}
+         <defs><style>{`.task-group, .resize-handle { pointer-events: all; } .tooltip-wrapper { position: relative; background: #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 12px; font-family: sans-serif; display: inline-block; white-space: nowrap; } .tooltip-wrapper::after { content: ''; position: absolute; bottom: -5px; left: 20px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; } .svg-tooltip-container { opacity: 0; transition: opacity 0.2s; pointer-events: none; } g.task-group:hover .svg-tooltip-container { opacity: 1; }`}</style></defs>
+
+        <g transform={`translate(0, ${PADDING_TOP})`}>
+          {/* --- UI Controls Area --- */}
+          <foreignObject x={containerWidth - 400} y="0" width="390" height="30" style={{textAlign: 'right'}}>
+             <div style={{display: 'flex', justifyContent: 'flex-end', gap: '20px'}}>
+                <CheckboxToggle label="Respect free days" checked={respectWeekends} onToggle={() => setRespectWeekends(p => !p)} x={0} y={10} />
+                <CheckboxToggle label="Show completed" checked={showCompleted} onToggle={handleToggleShowCompleted} x={150} y={10} />
+             </div>
+          </foreignObject>
+          
+          {/* ... Timeline Header and Body rendering are unchanged ... */}
+           <g className="timeline-header" transform={`translate(${LABEL_WIDTH}, 10)`}>
+            {Array.from({ length: Math.ceil(totalDays) }).map((_, i) => {
+                const date = new Date(timelineStartDate);
+                date.setDate(date.getDate() + i);
+                const x = dateToX(date);
+                const isWeekend = !workingDays.includes(date.getDay());
+                return (
+                    <g key={`day-tick-${i}`}>
+                        {isWeekend && <rect x={x} y={HEADER_HEIGHT - 30} width={pixelsPerDay} height={height - PADDING_TOP - (HEADER_HEIGHT - 30)} fill="#f7f7f7" />}
+                        <line x1={x} y1={HEADER_HEIGHT - 30} x2={x} y2={height - PADDING_TOP} stroke="#e0e0e0" />
+                        <text x={x + 4} y={HEADER_HEIGHT - 20} fontSize="10" fontFamily="sans-serif" fill={isWeekend ? "#c62828" : "#777"} fontWeight={isWeekend ? "bold" : "normal"}>{['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}</text>
+                        <text x={x + 4} y={HEADER_HEIGHT - 5} fontSize="10" fontFamily="sans-serif" fill="#777">{date.getDate()}</text>
+                    </g>
+                );
+            })}
+          </g>
+          <g className="timeline-body" transform={`translate(0, ${HEADER_HEIGHT})`}>
+            {visibleTasks.map((task, i) => ( <text key={`label-${task.id}`} x={LABEL_WIDTH - 10} y={i * TRACK_HEIGHT + 25} textAnchor="end" fontSize="12" fill="#333" fontFamily="sans-serif">{task.task.length > 20 ? `${task.task.substring(0, 18)}...` : task.task}</text> ))}
+            {visibleTasks.map((_, i) => ( <line key={`track-${i}`} x1={LABEL_WIDTH} x2={containerWidth} y1={(i + 1) * TRACK_HEIGHT} y2={(i + 1) * TRACK_HEIGHT} stroke="#e0e0e0" /> ))}
+          </g>
+        </g>
+        
+        {/* --- Render Tasks and Selection Box are mostly unchanged --- */}
+        <g onMouseDown={e => e.stopPropagation()}>
+            {tasksToRender.filter(t => t && t.start && t.end).map(task => {
+                const yIndex = visibleTasks.findIndex(vt => vt.id === task.id);
+                if (yIndex === -1) return null;
+                const x = dateToX(task.start) + LABEL_WIDTH;
+                const taskWidth = Math.max(pixelsPerDay / 2, dateToX(task.end) - dateToX(task.start) + pixelsPerDay);
+                const y = yIndex * TRACK_HEIGHT + 10 + HEADER_HEIGHT + PADDING_TOP;
+                const isSelected = selectedTaskIds.includes(task.id);
+                return (
+                    <g key={task.id} transform={`translate(${x}, ${y})`} className="task-group" onMouseDown={e => handleMouseDown(e, task, 'move')} style={{ cursor: 'grab' }}>
+                        <rect x="0" y="0" width={taskWidth} height={BAR_HEIGHT} rx={4} fill={task.color} />
+                        {isSelected && (<rect x="-1" y="-1" width={taskWidth + 2} height={BAR_HEIGHT + 2} rx="5" fill="none" stroke="#007bff" strokeWidth="2"/>)}
+                        <rect className="resize-handle" x={-RESIZE_HANDLE_WIDTH / 2} y="0" width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT} fill="transparent" style={{ cursor: 'ew-resize' }} onMouseDown={e => handleMouseDown(e, task, 'resize-start')}/>
+                        <rect className="resize-handle" x={taskWidth - RESIZE_HANDLE_WIDTH / 2} y="0" width={RESIZE_HANDLE_WIDTH} height={BAR_HEIGHT} fill="transparent" style={{ cursor: 'ew-resize' }} onMouseDown={e => handleMouseDown(e, task, 'resize-end')}/>
+                        <foreignObject x="5" y="-45" width="250" height="100" className="svg-tooltip-container">
+                           <div xmlns="http://www.w3.org/1999/xhtml" className="tooltip-wrapper"><strong>Task:</strong> {task.task}<br /><strong>Dates:</strong> {task.start} to {task.end}</div>
+                        </foreignObject>
+                    </g>
+                );
+            })}
+        </g>
+        {selectionBoxRect && ( <rect {...selectionBoxRect} fill="#007bff" fillOpacity="0.2" stroke="#007bff" strokeWidth="1" strokeDasharray="3 3" style={{ pointerEvents: 'none' }}/> )}
+      </svg>
+    </div>
+  );
+}
