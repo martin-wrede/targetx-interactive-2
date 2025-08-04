@@ -252,7 +252,7 @@ export default function SVGTimeline({
           {/* --- UI Controls Area (with event propagation stopped) --- */}
           {containerWidth > 450 && (
             <g onMouseDown={(e) => e.stopPropagation()}>
-              <CheckboxToggle x={containerWidth - 180} y={10} label="Show completed" checked={showCompleted} onToggle={handleToggleShowCompleted} />
+              <CheckboxToggle x={containerWidth - 180} y={10} label="Show only completed" checked={showCompleted} onToggle={handleToggleShowCompleted} />
               <CheckboxToggle x={containerWidth - 360} y={10} label="Respect free days" checked={respectWeekends} onToggle={() => setRespectWeekends(p => !p)} />
             </g>
           )}
@@ -275,7 +275,7 @@ export default function SVGTimeline({
           </g>
           
           <g className="timeline-body" transform={`translate(0, ${HEADER_HEIGHT + CONTROLS_HEIGHT})`}>
-            {visibleTasks.map((task, i) => ( <text key={`label-${task.id}`} x={LABEL_WIDTH - 10} y={i * TRACK_HEIGHT + 25} textAnchor="end" fontSize="12" fill="#333" fontFamily="sans-serif">{task.task.length > 20 ? `${task.task.substring(0, 18)}...` : task.task}</text> ))}
+            {visibleTasks.map((task, i) => ( <text key={`label-${task.id}`} x={LABEL_WIDTH - 10} y={i * TRACK_HEIGHT + 25} textAnchor="end" fontSize="12" fill="#333" fontFamily="sans-serif">{task.task.length > 12 ? `${task.task.substring(0, 10)}...` : task.task}</text> ))}
             {visibleTasks.map((_, i) => ( <line key={`track-${i}`} x1={LABEL_WIDTH} x2={containerWidth} y1={(i + 1) * TRACK_HEIGHT} y2={(i + 1) * TRACK_HEIGHT} stroke="#e0e0e0" /> ))}
           </g>
         </g>
