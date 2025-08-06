@@ -87,13 +87,11 @@ const rescaleTaskOffsets = (tasks, targetTotalWorkDays) => {
 
 
 export default  function PlannerApp() {
- 
-  
-   const { aiData } = useContext(Context);
+  const { aiData } = useContext(Context);
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] =useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [gesamtPrompt, setGesamtPrompt] = useState("");
   const [roadmapData, setRoadmapData] = useState([]);
@@ -104,40 +102,24 @@ export default  function PlannerApp() {
   const [workDays, setWorkDays] = useState(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
   const [projectPeriod, setProjectPeriod] = useState(4); 
 
+
+  
   const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const contextString = `Current Project Plan (as JSON):\n${JSON.stringify(roadmapData, null, 2)}`;
     setRoadmapContext(contextString);
   }, [roadmapData]);
-  
-  // --- UPDATED: This logic now correctly finds tasks active today ---
+
   useEffect(() => {
-    const todayDate = new Date(today);
-    // Set to midday to avoid timezone issues with date comparisons
-    todayDate.setHours(12, 0, 0, 0);
-
-    const todayTasks = roadmapData.filter(item => {
-      if (!item.date) return false;
-      
-      const startDate = new Date(item.date);
-      startDate.setHours(12, 0, 0, 0);
-
-      // Calculate the end date based on duration
-      const endDate = new Date(startDate);
-      const duration = item.durationDays || 1;
-      endDate.setDate(startDate.getDate() + duration - 1);
-
-      // Check if today is between the start and end date (inclusive)
-      return todayDate >= startDate && todayDate <= endDate;
-    });
-
+    const todayTasks = roadmapData.filter(item => item.date === today);
     setRoadmapToday(todayTasks);
   }, [roadmapData, today]);
 
 // [THE FIX] Define the constant here
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
- // [THE FIX] Replace your existing handleRoadmapUpdate with this one.
+
+  // [THE FIX] Replace your existing handleRoadmapUpdate with this one.
   const handleRoadmapUpdate = (updatedData) => {
     // 1. Check if the data is coming from a component that uses start/end format.
     const isStartEndFormat = updatedData.length > 0 && updatedData[0].hasOwnProperty('start');

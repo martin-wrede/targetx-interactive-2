@@ -1,39 +1,9 @@
 // --- START OF FILE RoadmapEdit.jsx ---
 
-import React, { useState, useContext, useEffect, useMemo } from 'react'; // --- UPDATED: Imported useMemo
+import React, { useState, useContext, useEffect } from 'react';
  // import './Roadmap.css';
 import './RoadmapEdit.css'; // Your dedicated CSS for edit components
 import { Context } from '../../Context';
-
-// --- NEW: Helper function to expand multi-day tasks into daily instances ---
-const expandTasksToDailyView = (tasks) => {
-  const dailyTasks = [];
-  tasks.forEach(task => {
-    const duration = task.durationDays || 1;
-    if (duration <= 1) {
-      // For single-day tasks, just add the original task with a link to itself
-      dailyTasks.push({ ...task, originalId: task.id, isExpanded: false });
-    } else {
-      // For multi-day tasks, create an entry for each day
-      for (let i = 0; i < duration; i++) {
-        const taskDate = new Date(task.date);
-        taskDate.setDate(taskDate.getDate() + i);
-        
-        dailyTasks.push({
-          ...task,
-          id: `${task.id}-day-${i}`, // Create a new, unique ID for React's key
-          originalId: task.id,       // Keep track of the original task
-          date: taskDate.toISOString().split('T')[0], // The specific date for this instance
-          task: `${task.task} (Day ${i + 1}/${duration})`, // Clarify in the title
-          durationDays: 1, // Each expanded task is now just 1 day long
-          isExpanded: true, // A flag to identify these instances
-        });
-      }
-    }
-  });
-  return dailyTasks;
-};
-
 
 // Helper functions (Unchanged)
 const formatDate = (dateStr, language = 'de') => {
@@ -68,40 +38,27 @@ const formatDateForInput = (dateStr) => {
   return date.toISOString().split('T')[0];
 };
 
-// --- UPDATED: generateICS now uses the expanded daily list ---
 const generateICS = (roadmapData, labels) => {
-  const dailyTasks = expandTasksToDailyView(roadmapData); // Expand tasks first!
-  
   const icsHeader = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AI Coach//Roadmap//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH`;
   const icsFooter = `END:VCALENDAR`;
-
-  // Map over the expanded daily list
-  const events = dailyTasks.map(item => {
-    if (!item.date) return '';
+  const events = roadmapData.map(item => {
+    if (!item.date) return ''; // Skip tasks without a date
     const date = new Date(item.date);
     const [startHour, startMinute] = (item.dailyStartTime || '10:00').split(':').map(Number);
-    // Duration for a single calendar event is always based on dailyHours
     const duration = item.dailyHours || 1;
-    
     const startDate = new Date(date);
     startDate.setHours(startHour, startMinute, 0, 0);
     const endDate = new Date(startDate);
     endDate.setTime(startDate.getTime() + (duration * 60 * 60 * 1000));
-    
     const startDateStr = startDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const endDateStr = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    
     const isCompleted = item.completed;
-    // The item.task is already formatted (e.g., "My Task (Day 1/3)")
     const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
     const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.startTimeLabel || 'START TIME'}: ${item.dailyStartTime || '10:00'}\\n${labels?.durationLabel || 'DURATION'}: ${item.dailyHours || 1} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
-    
     return `BEGIN:VEVENT\nUID:${item.id}@aicoach.com\nDTSTART:${startDateStr}\nDTEND:${endDateStr}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nCATEGORIES:AI Coach,Personal Development\nSTATUS:CONFIRMED\nTRANSP:OPAQUE\nEND:VEVENT\n`;
   }).join('');
-  
   return `${icsHeader}\n${events}${icsFooter}`;
 };
-
 
 const generateGoogleCalendarUrl = (task, data) => {
   const labels = data.roadmapLabels;
@@ -136,27 +93,20 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
   const [editedData, setEditedData] = useState({});
   const [localTasks, setLocalTasks] = useState([]);
   const [confirmationDialog, setConfirmationDialog] = useState(null);
-  const [showDailyTasks, setShowDailyTasks] = useState(false); // --- NEW: State for the view toggle
 
   useEffect(() => {
     const initialTasks = (roadmapData || []).map((task, index) => ({
       ...task,
       id: task.id || `task-${new Date(task.date).getTime()}-${index}-${Math.random()}`,
       completed: !!task.completed,
-      durationDays: task.durationDays || 1, 
+      durationDays: task.durationDays || 1, // Ensure durationDays has a default
     }));
     setLocalTasks(initialTasks);
   }, [roadmapData]);
   
-  // --- UPDATED: Decide which data to display based on the toggle ---
-  const displayedTasks = useMemo(() => {
-    const sortedTasks = [...localTasks].sort((a, b) => new Date(a.date) - new Date(b.date));
-    if (showDailyTasks) {
-      return expandTasksToDailyView(sortedTasks);
-    }
-    return sortedTasks;
-  }, [localTasks, showDailyTasks]);
+  const currentRoadmapData = localTasks;
 
+  // --- UPDATED: New tasks now include durationDays ---
   const addNewTask = () => {
     const newId = `task-${Date.now()}`;
     const newTask = {
@@ -164,7 +114,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
       date: new Date().toISOString().split('T')[0],
       dailyStartTime: '10:00',
       dailyHours: 1,
-      durationDays: 1, 
+      durationDays: 1, // Default duration in days
       task: 'New Task',
       motivation: '',
       completed: false,
@@ -174,28 +124,23 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
     startEditing(newTask);
   };
 
+  // --- UPDATED: Editing state now includes durationDays ---
   const startEditing = (task) => {
-    // --- UPDATED: Always edit the original task ---
-    const originalTaskId = task.originalId || task.id;
-    const taskToEdit = localTasks.find(t => t.id === originalTaskId);
-    if (!taskToEdit) return;
-
-    setEditingTask(originalTaskId);
+    setEditingTask(task.id);
     setEditedData({
-      date: taskToEdit.date,
-      dailyStartTime: taskToEdit.dailyStartTime || '10:00',
-      dailyHours: taskToEdit.dailyHours || 1,
-      durationDays: taskToEdit.durationDays || 1,
-      task: taskToEdit.task || '',
-      motivation: taskToEdit.motivation || ''
+      date: task.date,
+      dailyStartTime: task.dailyStartTime || '10:00',
+      dailyHours: task.dailyHours || 1,
+      durationDays: task.durationDays || 1,
+      task: task.task || '',
+      motivation: task.motivation || ''
     });
   };
-  
-  // --- UPDATED: Handlers now use the original task ID ---
-  const toggleTaskComplete = (idToToggle) => {
+
+  const toggleTaskComplete = (id) => {
     if (onRoadmapUpdate) {
       const updatedTasks = localTasks.map(task =>
-        task.id === idToToggle ? { ...task, completed: !task.completed } : task
+        task.id === id ? { ...task, completed: !task.completed } : task
       );
       onRoadmapUpdate(updatedTasks);
     }
@@ -217,11 +162,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
     setEditedData({});
   };
 
-  const showDeleteConfirmation = (task) => {
-    // --- UPDATED: Ensure we have the original task for the confirmation dialog
-    const originalTask = localTasks.find(t => t.id === (task.originalId || task.id));
-    setConfirmationDialog({ task: originalTask });
-  };
+  const showDeleteConfirmation = (task) => setConfirmationDialog({ task });
   const cancelDelete = () => setConfirmationDialog(null);
 
   const confirmDelete = () => {
@@ -235,8 +176,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
   const updateEditedData = (field, value) => setEditedData(prev => ({ ...prev, [field]: value }));
 
   const downloadICS = () => {
-    // --- UPDATED: Pass the original `localTasks`. The function now handles expansion.
-    const icsContent = generateICS(localTasks, data.roadmapLabels);
+    const icsContent = generateICS(currentRoadmapData, data.roadmapLabels);
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -256,15 +196,16 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
  
   const language = data.language || 'de';
 
-  const totalTasks = localTasks.length;
-  const completedTasksCount = localTasks.filter(t => t.completed).length;
+  // --- NEW: Calculations for the Progress Summary Box ---
+  const totalTasks = currentRoadmapData.length;
+  const completedTasksCount = currentRoadmapData.filter(t => t.completed).length;
 
-  const totalHours = localTasks.reduce((sum, item) => {
+  const totalHours = currentRoadmapData.reduce((sum, item) => {
     const durationInDays = item.durationDays || 1;
     return sum + ((item.dailyHours || 0) * durationInDays);
   }, 0);
 
-  const completedHours = localTasks.reduce((sum, item) => {
+  const completedHours = currentRoadmapData.reduce((sum, item) => {
     if (item.completed) {
       const durationInDays = item.durationDays || 1;
       return sum + ((item.dailyHours || 0) * durationInDays);
@@ -272,21 +213,22 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
     return sum;
   }, 0);
 
+
   return (
     <div className="container">
-       {confirmationDialog && (
-         <div className="confirmation-overlay" onClick={cancelDelete}>
-           <div className="confirmation-dialog" onClick={(e) => e.stopPropagation()}>
-             <div className="confirmation-title">{data.roadmapLabels?.deleteConfirmTitle || 'Delete Task?'}</div>
-             <div className="confirmation-message">{data.roadmapLabels?.deleteConfirmMessage || 'Are you sure you want to delete this task? This action cannot be undone.'}</div>
-             <div className="confirmation-task-preview">"{confirmationDialog.task.task}"</div>
-             <div className="confirmation-buttons">
-               <button onClick={confirmDelete} className="confirm-button">{data.roadmapLabels?.deleteConfirmYes || 'Yes, Delete'}</button>
-               <button onClick={cancelDelete} className="cancel-confirm-button">{data.roadmapLabels?.deleteConfirmNo || 'Cancel'}</button>
-             </div>
-           </div>
-         </div>
-       )}
+      {confirmationDialog && (
+        <div className="confirmation-overlay" onClick={cancelDelete}>
+          <div className="confirmation-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="confirmation-title">{data.roadmapLabels?.deleteConfirmTitle || 'Delete Task?'}</div>
+            <div className="confirmation-message">{data.roadmapLabels?.deleteConfirmMessage || 'Are you sure you want to delete this task? This action cannot be undone.'}</div>
+            <div className="confirmation-task-preview">"{confirmationDialog.task.task}"</div>
+            <div className="confirmation-buttons">
+              <button onClick={confirmDelete} className="confirm-button">{data.roadmapLabels?.deleteConfirmYes || 'Yes, Delete'}</button>
+              <button onClick={cancelDelete} className="cancel-confirm-button">{data.roadmapLabels?.deleteConfirmNo || 'Cancel'}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
        <div className="header">
         <div className="headerTitle">
@@ -295,10 +237,6 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
         </div>
         <p className="subtitle">{data.roadmapLabels?.subtitle || 'Your personalized learning roadmap'}</p>
         <div className="header-actions">
-           {/* --- NEW: Button to toggle the view --- */}
-           <button onClick={() => setShowDailyTasks(prev => !prev)} className="viewToggleButton">
-            {showDailyTasks ? '🗂️ ' + (data.roadmapLabels?.showTaskBlocks || 'Show Task Blocks') : '🗓️ ' + (data.roadmapLabels?.showDailyView || 'Show Daily View')}
-          </button>
           <button onClick={addNewTask} className="addNewButton">
             ➕ {data.roadmapLabels?.addNewTask || 'Add New Task'}
           </button>
@@ -309,27 +247,22 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
       </div>
 
       <div className="grid">
-        {/* --- UPDATED: Map over the new `displayedTasks` array --- */}
-        {displayedTasks.map((item) => {
+        {currentRoadmapData.map((item) => {
           const dateInfo = formatDate(item.date, language);
           const isCompleted = item.completed;
-           // --- UPDATED: Use originalId for editing state ---
-          const originalTaskId = item.originalId || item.id;
-          const isEditing = editingTask === originalTaskId;
-
-          const currentData = isEditing ? { ...localTasks.find(t => t.id === originalTaskId), ...editedData } : item;
+          const isEditing = editingTask === item.id;
+          // When editing, merge the original item with changes to ensure all properties are available for calculation
+          const currentData = isEditing ? { ...item, ...editedData } : item;
           const endTime = calculateEndTime(currentData.dailyStartTime, currentData.dailyHours);
           const totalTaskHours = (currentData.dailyHours || 1) * (currentData.durationDays || 1);
           
           return (
-            // In daily view, item.id is temporary; use originalId for consistent keys if available
             <div key={item.id} className={`card ${isCompleted ? 'cardCompleted' : ''}`}>
               <div className="cardHeader">
                 <div className="dateInfo">
                   {isEditing ? (
                     <div className="editable-date-container">
-                       {/* Editing date only makes sense for the original task, not a daily instance */}
-                      <input type="date" value={formatDateForInput(currentData.date)} onChange={(e) => updateEditedData('date', e.target.value)} className="date-input" disabled={item.isExpanded} />
+                      <input type="date" value={formatDateForInput(currentData.date)} onChange={(e) => updateEditedData('date', e.target.value)} className="date-input" />
                     </div>
                   ) : (
                     <>
@@ -341,7 +274,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                 </div>
 
                 <button
-                    onClick={() => toggleTaskComplete(originalTaskId)}
+                    onClick={() => toggleTaskComplete(item.id)}
                     className={`icon-button complete-button-edit header-center-button ${isCompleted ? 'active' : 'inactive'}`}
                     title={isCompleted ? "Mark as Incomplete" : "Mark as Complete"}
                 >
@@ -352,12 +285,12 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                     onClick={() => showDeleteConfirmation(item)}
                     className="icon-button delete-button"
                     title="Delete"
-                    disabled={item.isExpanded} // --- NEW: Disable deleting a single daily instance
                 >
                     🗑️
                 </button>
               </div>
-              
+
+              {/* --- RESTRUCTURED: Row 1 for Daily Time --- */}
               <div className="timeSection">
                 <div className="timeInfo">
                   <div className="timeLabel">{data.roadmapLabels?.dailyStartTimeLabel || 'DAILY START TIME'}</div>
@@ -384,34 +317,31 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                 </div>
               </div>
 
-              {/* Hide the multi-day duration row when in daily view */}
-              {!item.isExpanded && (
-                <div className="timeSection">
-                    <div className="timeInfo">
-                    <div className="timeLabel">{data.roadmapLabels?.taskDurationDaysLabel || 'TASK DURATION (DAYS)'}</div>
-                    {isEditing ? (
-                        <div className="duration-input-container">
-                        <input type="number" value={currentData.durationDays || 1} onChange={(e) => updateEditedData('durationDays', parseInt(e.target.value, 10) || 1)} className="number-input" min="1" step="1" />
-                        </div>
-                    ) : (
-                        <div className="timeValue">{currentData.durationDays || 1} day(s)</div>
-                    )}
+              {/* --- RESTRUCTURED: Row 2 for Task Duration --- */}
+              <div className="timeSection">
+                <div className="timeInfo">
+                  <div className="timeLabel">{data.roadmapLabels?.taskDurationDaysLabel || 'TASK DURATION (DAYS)'}</div>
+                  {isEditing ? (
+                    <div className="duration-input-container">
+                      <input type="number" value={currentData.durationDays || 1} onChange={(e) => updateEditedData('durationDays', parseInt(e.target.value, 10) || 1)} className="number-input" min="1" step="1" />
                     </div>
-                    <div className="timeInfo">
-                    <div className="timeLabel">{data.roadmapLabels?.taskDurationLabel || 'TASK DURATION'}</div>
-                    <div className="timeValue timeValue-calculated">{totalTaskHours.toFixed(1)} {data.roadmapLabels?.hoursLabel || 'Hours'}</div>
-                    </div>
-                    <div className="timeInfo placeholder"></div>
+                  ) : (
+                    <div className="timeValue">{currentData.durationDays || 1} day(s)</div>
+                  )}
                 </div>
-              )}
-
+                <div className="timeInfo">
+                  <div className="timeLabel">{data.roadmapLabels?.taskDurationLabel || 'TASK DURATION'}</div>
+                  <div className="timeValue timeValue-calculated">{totalTaskHours.toFixed(1)} {data.roadmapLabels?.hoursLabel || 'Hours'}</div>
+                </div>
+                <div className="timeInfo placeholder"></div>
+              </div>
 
               <div className="taskSection">
                 <div className="sectionTitle">
                   {data.roadmapLabels?.taskLabel || 'TASK'}
                   {isEditing ? (
                     <div className="button-container">
-                      <button onClick={() => saveTask(originalTaskId)} className="icon-button save-button" title="Save">✓</button>
+                      <button onClick={() => saveTask(item.id)} className="icon-button save-button" title="Save">✓</button>
                       <button onClick={cancelEditing} className="icon-button cancel-button" title="Cancel">✕</button>
                     </div>
                   ) : (
@@ -421,8 +351,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                 {isEditing ? (
                   <textarea type="text" value={currentData.task || ''} onChange={(e) => updateEditedData('task', e.target.value)} className="edit-input" placeholder="Task description" autoFocus />
                 ) : (
-                  // --- UPDATED: Use item.task directly as it's already formatted for daily view
-                  <div className={`taskText ${isCompleted ? 'taskCompleted' : ''}`}>{item.task}</div>
+                  <div className={`taskText ${isCompleted ? 'taskCompleted' : ''}`}>{currentData.task}</div>
                 )}
               </div>
 
@@ -443,6 +372,8 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
         })}
       </div>
       
+      {/* --- RESTORED & FIXED: Progress Summary Section --- */}
+      {/* Note: You may need to add CSS for .progressContainer, .progressGrid, .progressItem etc. for styling. */}
       <div className="progressContainer">
         <h2 className="progressTitle">{data.roadmapLabels?.progressTitle || 'Progress Overview'}</h2>
         <div className="progressGrid">
