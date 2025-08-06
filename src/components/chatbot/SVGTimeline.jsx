@@ -8,8 +8,9 @@ const RESIZE_HANDLE_WIDTH = 8;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const HEADER_HEIGHT = 50;
 const PADDING_TOP = 10;
-const CONTROLS_HEIGHT = 40; // --- MODIFIED --- Increased height for new controls
+const CONTROLS_HEIGHT = 40; 
 const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // Mon, Tue, Wed, Thu, Fri
+const MINIMUM_TIMELINE_DAYS = 31; // --- NEW --- Constant for minimum duration
 
 // --- Utility Functions for Working Day Calculations (Unchanged) ---
 function addWorkingDays(date, daysToAdd, workingDays) {
@@ -50,7 +51,7 @@ export default function SVGTimeline({
   showCompleted: showCompletedProp,
   onToggleShowCompleted: onToggleShowCompletedProp,
 }) {
-  // --- State and Refs ---
+  // --- State and Refs (Unchanged) ---
   const [dragState, setDragState] = useState(null);
   const [tempUpdates, setTempUpdates] = useState({});
   const [containerWidth, setContainerWidth] = useState(0);
@@ -62,7 +63,6 @@ export default function SVGTimeline({
   const [respectWeekends, setRespectWeekends] = useState(true);
   const [internalShowCompleted, setInternalShowCompleted] = useState(true);
 
-  // --- NEW --- State for scaling feature
   const [scalePercentage, setScalePercentage] = useState(100);
   
   const showCompleted = showCompletedProp !== undefined ? showCompletedProp : internalShowCompleted;
@@ -72,7 +72,7 @@ export default function SVGTimeline({
     return showCompleted ? roadmapData : roadmapData.filter(task => !task.completed);
   }, [roadmapData, showCompleted]);
 
-  // --- Setup Hooks (Unchanged) ---
+  // --- Setup Hooks ---
     useEffect(() => {
     const observer = new ResizeObserver(entries => {
       if (entries[0]) setContainerWidth(entries[0].contentRect.width);
@@ -84,25 +84,41 @@ export default function SVGTimeline({
     };
   }, []);
 
+  // --- MODIFIED --- This entire `useMemo` block is updated to enforce a minimum timeline duration.
   const { timelineStartDate, pixelsPerDay, totalDays } = useMemo(() => {
     const validTasks = roadmapData.filter(task => task && task.start && task.end);
     if (validTasks.length === 0 || containerWidth === 0) {
-      return { timelineStartDate: new Date(), pixelsPerDay: 20, totalDays: 30 };
+      const startDate = new Date();
+      return { timelineStartDate: startDate, pixelsPerDay: 20, totalDays: MINIMUM_TIMELINE_DAYS };
     }
     const allDates = validTasks.flatMap(task => [new Date(task.start), new Date(task.end)]);
     const validDates = allDates.filter(date => !isNaN(date.getTime()));
     if (validDates.length === 0) {
-      return { timelineStartDate: new Date(), pixelsPerDay: 20, totalDays: 30 };
+        const startDate = new Date();
+        return { timelineStartDate: startDate, pixelsPerDay: 20, totalDays: MINIMUM_TIMELINE_DAYS };
     }
     const minDate = new Date(Math.min(...validDates));
     const maxDate = new Date(Math.max(...validDates));
+
+    // Determine the timeline's start date with some padding
     const startDate = new Date(minDate);
     startDate.setDate(minDate.getDate() - 2);
-    const endDate = new Date(maxDate);
-    endDate.setDate(maxDate.getDate() + 2);
+
+    // Calculate the end date based on the latest task + padding
+    const dataDrivenEndDate = new Date(maxDate);
+    dataDrivenEndDate.setDate(maxDate.getDate() + 2);
+
+    // Calculate the minimum required end date to enforce the minimum duration
+    const minimumDurationEndDate = new Date(startDate);
+    minimumDurationEndDate.setDate(startDate.getDate() + MINIMUM_TIMELINE_DAYS);
+
+    // The final end date is the LATER of the two, ensuring all tasks are visible and the minimum span is met
+    const endDate = new Date(Math.max(dataDrivenEndDate, minimumDurationEndDate));
+
     const totalDaysValue = Math.max(1, (endDate - startDate) / MS_PER_DAY);
     const availableWidth = containerWidth - LABEL_WIDTH;
     const pixelsPerDayValue = availableWidth > 0 ? availableWidth / totalDaysValue : 0;
+
     return { timelineStartDate: startDate, pixelsPerDay: pixelsPerDayValue, totalDays: totalDaysValue };
   }, [roadmapData, containerWidth]);
 
@@ -123,7 +139,7 @@ export default function SVGTimeline({
     return { x, y, width, height: BAR_HEIGHT };
   }, [visibleTasks, dateToX, pixelsPerDay]);
   
-  // --- Event Handlers (Unchanged logic for drag/drop) ---
+  // --- Event Handlers (Unchanged logic) ---
   const handleMouseDown = (e, task, type) => {
     e.preventDefault();
     e.stopPropagation();
@@ -144,7 +160,6 @@ export default function SVGTimeline({
 
   const handleContainerMouseDown = (e) => {
     e.preventDefault();
-    // --- MODIFIED --- Do not clear selection if clicking on controls
     const { y } = getMousePosInSVG(e);
     if (y < CONTROLS_HEIGHT + PADDING_TOP) {
       return;
@@ -226,7 +241,6 @@ export default function SVGTimeline({
     }
   }, [selectionBox, dragState, tempUpdates, roadmapData, onTaskUpdate, visibleTasks, getTaskGeometry]);
 
-  // --- NEW --- Handler for applying the duration scaling
   const handleScaleApply = useCallback(() => {
     if (selectedTaskIds.length === 0 || isNaN(scalePercentage) || !onTaskUpdate) return;
     
@@ -235,7 +249,7 @@ export default function SVGTimeline({
 
     const updatedData = roadmapData.map(task => {
       if (!selectedTaskIds.includes(task.id)) {
-        return task; // Not selected, return as is
+        return task;
       }
       
       const originalStart = new Date(task.start);
@@ -259,7 +273,7 @@ export default function SVGTimeline({
     });
 
     onTaskUpdate(updatedData);
-    setSelectedTaskIds([]); // Clear selection after applying
+    setSelectedTaskIds([]);
 
   }, [selectedTaskIds, scalePercentage, roadmapData, onTaskUpdate, respectWeekends, workingDays]);
 
@@ -289,13 +303,13 @@ export default function SVGTimeline({
       <text x="22" y="0" fontFamily="sans-serif" fontSize="12" fill="#333" textAnchor="start" dominantBaseline="middle">{label}</text>
     </g>
   );
-
+  
+  // --- The rest of the component's JSX is unchanged. ---
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", boxSizing: 'border-box' }}>
       <svg ref={svgRef} width={containerWidth} height={height} style={{ border: "1px solid #ccc", display: 'block', borderRadius: '8px' }} onMouseDown={handleContainerMouseDown}>
         <defs>
             <style>{`.task-group, .resize-handle { pointer-events: all; } .tooltip-wrapper { position: relative; background: #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 12px; font-family: sans-serif; display: inline-block; white-space: nowrap; } .tooltip-wrapper::after { content: ''; position: absolute; bottom: -5px; left: 20px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; } .svg-tooltip-container { opacity: 0; transition: opacity 0.2s; pointer-events: none; } g.task-group:hover .svg-tooltip-container { opacity: 1; }`}</style>
-            {/* --- NEW --- Styles for the new controls */}
             <style>{`
                 .scale-controls-wrapper {
                     font-family: sans-serif; font-size: 12px;
@@ -310,9 +324,7 @@ export default function SVGTimeline({
         </defs>
         
         <g transform={`translate(0, ${PADDING_TOP})`}>
-          {/* --- MODIFIED --- UI Controls Area with scaling feature */}
           <g onMouseDown={(e) => e.stopPropagation()}>
-            {/* --- NEW --- Scaling Controls */}
             <foreignObject x={LABEL_WIDTH + 20} y={5} width="350" height="30">
                 <div 
                   xmlns="http://www.w3.org/1999/xhtml"
@@ -340,7 +352,6 @@ export default function SVGTimeline({
                 </div>
             </foreignObject>
 
-            {/* Existing Controls */}
             {containerWidth > 750 && (
                 <>
                 <CheckboxToggle x={containerWidth - 180} y={15} label="Show also completed" checked={showCompleted} onToggle={handleToggleShowCompleted} />
