@@ -8,7 +8,7 @@ const RESIZE_HANDLE_WIDTH = 8;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const HEADER_HEIGHT = 50;
 const PADDING_TOP = 10;
-const CONTROLS_HEIGHT = 40; // --- MODIFIED --- Increased height for new controls
+const CONTROLS_HEIGHT = 30; // Vertical space reserved for top UI controls
 const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // Mon, Tue, Wed, Thu, Fri
 
 // --- Utility Functions for Working Day Calculations (Unchanged) ---
@@ -32,8 +32,6 @@ function calculateWorkingDaysDuration(start, end, workingDays) {
   const endDate = new Date(end);
   current.setHours(12, 0, 0, 0);
   endDate.setHours(12, 0, 0, 0);
-  // If start is after end, duration is 0, but we enforce a min of 1
-  if (current > endDate) return 1;
   while (current <= endDate) {
     if (workingDays.includes(current.getDay())) {
       count++;
@@ -50,7 +48,7 @@ export default function SVGTimeline({
   showCompleted: showCompletedProp,
   onToggleShowCompleted: onToggleShowCompletedProp,
 }) {
-  // --- State and Refs ---
+  // --- State and Refs (Unchanged) ---
   const [dragState, setDragState] = useState(null);
   const [tempUpdates, setTempUpdates] = useState({});
   const [containerWidth, setContainerWidth] = useState(0);
@@ -61,9 +59,6 @@ export default function SVGTimeline({
   
   const [respectWeekends, setRespectWeekends] = useState(true);
   const [internalShowCompleted, setInternalShowCompleted] = useState(true);
-
-  // --- NEW --- State for scaling feature
-  const [scalePercentage, setScalePercentage] = useState(100);
   
   const showCompleted = showCompletedProp !== undefined ? showCompletedProp : internalShowCompleted;
   const handleToggleShowCompleted = onToggleShowCompletedProp || (() => setInternalShowCompleted(p => !p));
@@ -123,7 +118,7 @@ export default function SVGTimeline({
     return { x, y, width, height: BAR_HEIGHT };
   }, [visibleTasks, dateToX, pixelsPerDay]);
   
-  // --- Event Handlers (Unchanged logic for drag/drop) ---
+  // --- Event Handlers (Unchanged logic) ---
   const handleMouseDown = (e, task, type) => {
     e.preventDefault();
     e.stopPropagation();
@@ -144,13 +139,8 @@ export default function SVGTimeline({
 
   const handleContainerMouseDown = (e) => {
     e.preventDefault();
-    // --- MODIFIED --- Do not clear selection if clicking on controls
-    const { y } = getMousePosInSVG(e);
-    if (y < CONTROLS_HEIGHT + PADDING_TOP) {
-      return;
-    }
     setSelectedTaskIds([]);
-    const { x } = getMousePosInSVG(e);
+    const { x, y } = getMousePosInSVG(e);
     setSelectionBox({ startX: x, startY: y, currentX: x, currentY: y });
   };
 
@@ -226,43 +216,6 @@ export default function SVGTimeline({
     }
   }, [selectionBox, dragState, tempUpdates, roadmapData, onTaskUpdate, visibleTasks, getTaskGeometry]);
 
-  // --- NEW --- Handler for applying the duration scaling
-  const handleScaleApply = useCallback(() => {
-    if (selectedTaskIds.length === 0 || isNaN(scalePercentage) || !onTaskUpdate) return;
-    
-    const scaleFactor = parseFloat(scalePercentage) / 100;
-    if (scaleFactor < 0) return;
-
-    const updatedData = roadmapData.map(task => {
-      if (!selectedTaskIds.includes(task.id)) {
-        return task; // Not selected, return as is
-      }
-      
-      const originalStart = new Date(task.start);
-      const originalEnd = new Date(task.end);
-      let newEnd;
-
-      if (respectWeekends) {
-        const currentDuration = calculateWorkingDaysDuration(originalStart, originalEnd, workingDays);
-        const newDuration = Math.max(1, Math.round(currentDuration * scaleFactor));
-        newEnd = addWorkingDays(originalStart, newDuration - 1, workingDays);
-      } else {
-        const currentDurationMs = originalEnd.getTime() - originalStart.getTime();
-        const currentDurationDays = Math.round(currentDurationMs / MS_PER_DAY) + 1;
-        const newDurationDays = Math.max(1, Math.round(currentDurationDays * scaleFactor));
-        
-        newEnd = new Date(originalStart.getTime());
-        newEnd.setDate(originalStart.getDate() + newDurationDays - 1);
-      }
-
-      return { ...task, end: newEnd.toISOString().split('T')[0] };
-    });
-
-    onTaskUpdate(updatedData);
-    setSelectedTaskIds([]); // Clear selection after applying
-
-  }, [selectedTaskIds, scalePercentage, roadmapData, onTaskUpdate, respectWeekends, workingDays]);
-
   useEffect(() => {
     if (!dragState && !selectionBox) return;
     window.addEventListener('mousemove', handleMouseMove);
@@ -293,61 +246,16 @@ export default function SVGTimeline({
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", boxSizing: 'border-box' }}>
       <svg ref={svgRef} width={containerWidth} height={height} style={{ border: "1px solid #ccc", display: 'block', borderRadius: '8px' }} onMouseDown={handleContainerMouseDown}>
-        <defs>
-            <style>{`.task-group, .resize-handle { pointer-events: all; } .tooltip-wrapper { position: relative; background: #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 12px; font-family: sans-serif; display: inline-block; white-space: nowrap; } .tooltip-wrapper::after { content: ''; position: absolute; bottom: -5px; left: 20px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; } .svg-tooltip-container { opacity: 0; transition: opacity 0.2s; pointer-events: none; } g.task-group:hover .svg-tooltip-container { opacity: 1; }`}</style>
-            {/* --- NEW --- Styles for the new controls */}
-            <style>{`
-                .scale-controls-wrapper {
-                    font-family: sans-serif; font-size: 12px;
-                    display: flex; align-items: center; gap: 8px;
-                    transition: opacity 0.2s;
-                }
-                .scale-controls-wrapper[disabled] { opacity: 0.5; pointer-events: none; }
-                .scale-input { width: 50px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
-                .scale-button { padding: 4px 8px; border: 1px solid #888; border-radius: 4px; background: #f0f0f0; cursor: pointer; }
-                .scale-button:hover { background: #e0e0e0; }
-            `}</style>
-        </defs>
+        <defs><style>{`.task-group, .resize-handle { pointer-events: all; } .tooltip-wrapper { position: relative; background: #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 12px; font-family: sans-serif; display: inline-block; white-space: nowrap; } .tooltip-wrapper::after { content: ''; position: absolute; bottom: -5px; left: 20px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; } .svg-tooltip-container { opacity: 0; transition: opacity 0.2s; pointer-events: none; } g.task-group:hover .svg-tooltip-container { opacity: 1; }`}</style></defs>
         
         <g transform={`translate(0, ${PADDING_TOP})`}>
-          {/* --- MODIFIED --- UI Controls Area with scaling feature */}
-          <g onMouseDown={(e) => e.stopPropagation()}>
-            {/* --- NEW --- Scaling Controls */}
-            <foreignObject x={LABEL_WIDTH + 20} y={5} width="350" height="30">
-                <div 
-                  xmlns="http://www.w3.org/1999/xhtml"
-                  className="scale-controls-wrapper"
-                  disabled={selectedTaskIds.length === 0}
-                >
-                    <label htmlFor="scale-input-field">Scale task duration by:</label>
-                    <input 
-                        id="scale-input-field"
-                        type="number"
-                        min="0"
-                        className="scale-input"
-                        value={scalePercentage}
-                        onChange={(e) => setScalePercentage(e.target.value)}
-                        disabled={selectedTaskIds.length === 0}
-                    />
-                    <span>%</span>
-                    <button 
-                        className="scale-button"
-                        onClick={handleScaleApply} 
-                        disabled={selectedTaskIds.length === 0}
-                    >
-                        Apply
-                    </button>
-                </div>
-            </foreignObject>
-
-            {/* Existing Controls */}
-            {containerWidth > 750 && (
-                <>
-                <CheckboxToggle x={containerWidth - 180} y={15} label="Show also completed" checked={showCompleted} onToggle={handleToggleShowCompleted} />
-                <CheckboxToggle x={containerWidth - 360} y={15} label="Respect free days" checked={respectWeekends} onToggle={() => setRespectWeekends(p => !p)} />
-                </>
-            )}
-          </g>
+          {/* --- UI Controls Area (with event propagation stopped) --- */}
+          {containerWidth > 450 && (
+            <g onMouseDown={(e) => e.stopPropagation()}>
+              <CheckboxToggle x={containerWidth - 180} y={10} label="Show also completed" checked={showCompleted} onToggle={handleToggleShowCompleted} />
+              <CheckboxToggle x={containerWidth - 360} y={10} label="Respect free days" checked={respectWeekends} onToggle={() => setRespectWeekends(p => !p)} />
+            </g>
+          )}
           
           <g className="timeline-header" transform={`translate(${LABEL_WIDTH}, ${CONTROLS_HEIGHT})`}>
             {Array.from({ length: Math.ceil(totalDays) }).map((_, i) => {
