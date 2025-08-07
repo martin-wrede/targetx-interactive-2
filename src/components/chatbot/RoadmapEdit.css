@@ -489,11 +489,15 @@
 .complete-button-edit.active {
   background-color: #dcfce7;
   color: #059669;
+  /* --- THE FIX --- Add a transparent border to match the inactive state's border width */
+  border: 2px solid transparent; 
 }
 
 .complete-button-edit.inactive {
   background-color: #f3f4f6;
   color: #6b7280;
+  /* This is the rule causing the layout shift */
+  border: 2px dashed #d1d5db;
 }
 
 /* --- Other Edit Mode Input and Component Styles --- */
@@ -752,4 +756,32 @@
 
 .dropdown-item:hover {
   background-color: #f0f0f0;
+}
+
+/* =================================================================== */
+/* === FINAL, DEFINITIVE FIX FOR THE JUMPING COMPLETION BUTTON === */
+/* This block explicitly overrides all properties that cause layout shifts. */
+/* =================================================================== */
+
+/* 1. Reset all inherited movement and transformations on the specific button. */
+.complete-button-edit,
+.complete-button-edit:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.1s, border-color 0.1s; /* Only transition colors */
+}
+
+/* 2. Define the INACTIVE state. It has a visible dashed border. */
+.complete-button-edit.inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 2px dashed #d1d5db;
+}
+
+/* 3. Define the ACTIVE state. Give it an INVISIBLE border of the same size. */
+.complete-button-edit.active {
+  background-color: #dcfce7;
+  color: #059669;
+  /* This is the key: it occupies the same space as the dashed border, but is invisible. */
+  border: 2px solid transparent; 
 }

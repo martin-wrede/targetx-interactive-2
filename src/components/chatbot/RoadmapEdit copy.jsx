@@ -131,8 +131,8 @@ const generateGoogleCalendarUrl = (task, data) => {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 };
 
-// --- UPDATED: Component now accepts `isToday` prop to control UI elements ---
-export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, titleDisplay3, isToday = false }) {
+// Main Roadmap Component
+export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, titleDisplay3 }) {
   const { data } = useContext(Context);
   const [editingTask, setEditingTask] = useState(null);
   const [editedData, setEditedData] = useState({});
@@ -323,17 +323,12 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
         </div>
         <p className="subtitle">{data.roadmapLabels?.subtitle || 'Your personalized learning roadmap'}</p>
         <div className="header-actions">
-           {/* --- UPDATED: Conditionally render buttons based on the isToday prop --- */}
-           {!isToday && (
-            <>
-              <button onClick={() => setShowDailyTasks(prev => !prev)} className="viewToggleButton">
-                {showDailyTasks ? '🗂️ ' + (data.roadmapLabels?.showTaskBlocks || 'Show Task Blocks') : '🗓️ ' + (data.roadmapLabels?.showDailyView || 'Show Daily View')}
-              </button>
-              <button onClick={addNewTask} className="addNewButton">
-                ➕ {data.roadmapLabels?.addNewTask || 'Add New Task'}
-              </button>
-            </>
-           )}
+           <button onClick={() => setShowDailyTasks(prev => !prev)} className="viewToggleButton">
+            {showDailyTasks ? '🗂️ ' + (data.roadmapLabels?.showTaskBlocks || 'Show Task Blocks') : '🗓️ ' + (data.roadmapLabels?.showDailyView || 'Show Daily View')}
+          </button>
+          <button onClick={addNewTask} className="addNewButton">
+            ➕ {data.roadmapLabels?.addNewTask || 'Add New Task'}
+          </button>
           <button onClick={downloadICS} className="exportButton">
             📅 {data.roadmapLabels?.downloadICS || 'Download ICS'}
           </button>
