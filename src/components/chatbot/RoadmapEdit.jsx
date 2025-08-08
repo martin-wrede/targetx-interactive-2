@@ -70,36 +70,60 @@ const formatDateForInput = (dateStr) => {
   return date.toISOString().split('T')[0];
 };
 
-// --- UPDATED: generateICS now uses the expanded daily list ---
-const generateICS = (roadmapData, labels) => {
-  const dailyTasks = expandTasksToDailyView(roadmapData); // Expand tasks first!
-  
+// --- UPDATED: generateICS is now conditional based on the export view mode ---
+const generateICS = (roadmapData, labels, exportAsDaily) => {
   const icsHeader = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AI Coach//Roadmap//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH`;
   const icsFooter = `END:VCALENDAR`;
+  let events = '';
 
-  // Map over the expanded daily list
-  const events = dailyTasks.map(item => {
-    if (!item.date) return '';
-    const date = new Date(item.date);
-    const [startHour, startMinute] = (item.dailyStartTime || '10:00').split(':').map(Number);
-    // Duration for a single calendar event is always based on dailyHours
-    const duration = item.dailyHours || 1;
-    
-    const startDate = new Date(date);
-    startDate.setHours(startHour, startMinute, 0, 0);
-    const endDate = new Date(startDate);
-    endDate.setTime(startDate.getTime() + (duration * 60 * 60 * 1000));
-    
-    const startDateStr = startDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const endDateStr = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    
-    const isCompleted = item.completed;
-    // The item.task is already formatted (e.g., "My Task (Day 1/3)")
-    const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
-    const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.startTimeLabel || 'START TIME'}: ${item.dailyStartTime || '10:00'}\\n${labels?.durationLabel || 'DURATION'}: ${item.dailyHours || 1} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
-    
-    return `BEGIN:VEVENT\nUID:${item.id}@aicoach.com\nDTSTART:${startDateStr}\nDTEND:${endDateStr}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nCATEGORIES:AI Coach,Personal Development\nSTATUS:CONFIRMED\nTRANSP:OPAQUE\nEND:VEVENT\n`;
-  }).join('');
+  if (exportAsDaily) {
+    // --- DAILY VIEW EXPORT: Create a separate timed event for each day ---
+    const dailyTasks = expandTasksToDailyView(roadmapData);
+    events = dailyTasks.map(item => {
+      if (!item.date) return '';
+      const date = new Date(item.date);
+      const [startHour, startMinute] = (item.dailyStartTime || '10:00').split(':').map(Number);
+      const duration = item.dailyHours || 1;
+      
+      const startDate = new Date(date);
+      startDate.setHours(startHour, startMinute, 0, 0);
+      const endDate = new Date(startDate);
+      endDate.setTime(startDate.getTime() + (duration * 60 * 60 * 1000));
+      
+      const startDateStr = startDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      const endDateStr = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      
+      const isCompleted = item.completed;
+      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
+      const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.startTimeLabel || 'START TIME'}: ${item.dailyStartTime || '10:00'}\\n${labels?.durationLabel || 'DURATION'}: ${item.dailyHours || 1} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
+      
+      return `BEGIN:VEVENT\nUID:${item.id}@aicoach.com\nDTSTART:${startDateStr}\nDTEND:${endDateStr}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nCATEGORIES:AI Coach,Personal Development\nSTATUS:CONFIRMED\nTRANSP:OPAQUE\nEND:VEVENT\n`;
+    }).join('');
+
+  } else {
+    // --- TASK BLOCK EXPORT: Create a single all-day event spanning multiple days ---
+    events = roadmapData.map(item => {
+      if (!item.date) return '';
+      
+      const durationDays = item.durationDays || 1;
+      const startDate = new Date(item.date);
+      startDate.setUTCHours(0, 0, 0, 0); // Normalize to UTC start of day
+      
+      const endDate = new Date(startDate);
+      endDate.setUTCDate(startDate.getUTCDate() + durationDays); // For all-day events, end date is exclusive
+
+      const formatDateForICS = (d) => d.toISOString().split('T')[0].replace(/-/g, '');
+      const startDateStr = formatDateForICS(startDate);
+      const endDateStr = formatDateForICS(endDate);
+      
+      const isCompleted = item.completed;
+      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
+      const totalHours = (item.dailyHours || 1) * durationDays;
+      const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.taskDurationDaysLabel || 'DURATION'}: ${durationDays} day(s)\\n${labels?.taskDurationLabel || 'TOTAL DURATION'}: ${totalHours.toFixed(1)} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
+      
+      return `BEGIN:VEVENT\nUID:${item.id}@aicoach.com\nDTSTART;VALUE=DATE:${startDateStr}\nDTEND;VALUE=DATE:${endDateStr}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nCATEGORIES:AI Coach,Personal Development\nSTATUS:CONFIRMED\nTRANSP:OPAQUE\nEND:VEVENT\n`;
+    }).join('');
+  }
   
   return `${icsHeader}\n${events}${icsFooter}`;
 };
@@ -260,8 +284,9 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
 
   const updateEditedData = (field, value) => setEditedData(prev => ({ ...prev, [field]: value }));
 
+  // --- UPDATED: Pass the current view mode to the ICS generator ---
   const downloadICS = () => {
-    const icsContent = generateICS(localTasks, data.roadmapLabels);
+    const icsContent = generateICS(localTasks, data.roadmapLabels, showDailyTasks);
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -334,9 +359,15 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
               </button>
             </>
            )}
-          <button onClick={downloadICS} className="exportButton">
+           
+           <br/> <br/>
+
+          <button style={{marginBottom:"10px"}} onClick={downloadICS} className="exportButton">
             📅 {data.roadmapLabels?.downloadICS || 'Download ICS'}
           </button>
+           
+           {/* --- UPDATED: Text is now dynamic based on the view mode --- */}
+           {showDailyTasks ? '(as Daily View)' : '(as Task Blocks)'}
         </div>
       </div>
 

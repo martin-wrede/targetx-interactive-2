@@ -8,9 +8,9 @@ const RESIZE_HANDLE_WIDTH = 8;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const HEADER_HEIGHT = 50;
 const PADDING_TOP = 10;
-const CONTROLS_HEIGHT = 40; 
+const CONTROLS_HEIGHT = 40;
 const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // Mon, Tue, Wed, Thu, Fri
-const MINIMUM_TIMELINE_DAYS = 31; // --- NEW --- Constant for minimum duration
+const MINIMUM_TIMELINE_DAYS = 31;
 
 // --- Utility Functions for Working Day Calculations (Unchanged) ---
 function addWorkingDays(date, daysToAdd, workingDays) {
@@ -33,7 +33,6 @@ function calculateWorkingDaysDuration(start, end, workingDays) {
   const endDate = new Date(end);
   current.setHours(12, 0, 0, 0);
   endDate.setHours(12, 0, 0, 0);
-  // If start is after end, duration is 0, but we enforce a min of 1
   if (current > endDate) return 1;
   while (current <= endDate) {
     if (workingDays.includes(current.getDay())) {
@@ -72,7 +71,7 @@ export default function SVGTimeline({
     return showCompleted ? roadmapData : roadmapData.filter(task => !task.completed);
   }, [roadmapData, showCompleted]);
 
-  // --- Setup Hooks ---
+  // --- Setup Hooks (Unchanged) ---
     useEffect(() => {
     const observer = new ResizeObserver(entries => {
       if (entries[0]) setContainerWidth(entries[0].contentRect.width);
@@ -84,7 +83,6 @@ export default function SVGTimeline({
     };
   }, []);
 
-  // --- MODIFIED --- This entire `useMemo` block is updated to enforce a minimum timeline duration.
   const { timelineStartDate, pixelsPerDay, totalDays } = useMemo(() => {
     const validTasks = roadmapData.filter(task => task && task.start && task.end);
     if (validTasks.length === 0 || containerWidth === 0) {
@@ -100,19 +98,15 @@ export default function SVGTimeline({
     const minDate = new Date(Math.min(...validDates));
     const maxDate = new Date(Math.max(...validDates));
 
-    // Determine the timeline's start date with some padding
     const startDate = new Date(minDate);
     startDate.setDate(minDate.getDate() - 2);
 
-    // Calculate the end date based on the latest task + padding
     const dataDrivenEndDate = new Date(maxDate);
     dataDrivenEndDate.setDate(maxDate.getDate() + 2);
 
-    // Calculate the minimum required end date to enforce the minimum duration
     const minimumDurationEndDate = new Date(startDate);
     minimumDurationEndDate.setDate(startDate.getDate() + MINIMUM_TIMELINE_DAYS);
 
-    // The final end date is the LATER of the two, ensuring all tasks are visible and the minimum span is met
     const endDate = new Date(Math.max(dataDrivenEndDate, minimumDurationEndDate));
 
     const totalDaysValue = Math.max(1, (endDate - startDate) / MS_PER_DAY);
@@ -139,7 +133,7 @@ export default function SVGTimeline({
     return { x, y, width, height: BAR_HEIGHT };
   }, [visibleTasks, dateToX, pixelsPerDay]);
   
-  // --- Event Handlers (Unchanged logic) ---
+  // --- Event Handlers (Unchanged logic for mousedown, mousemove, mouseup) ---
   const handleMouseDown = (e, task, type) => {
     e.preventDefault();
     e.stopPropagation();
@@ -241,37 +235,62 @@ export default function SVGTimeline({
     }
   }, [selectionBox, dragState, tempUpdates, roadmapData, onTaskUpdate, visibleTasks, getTaskGeometry]);
 
+  // --- MODIFIED --- This function is rewritten for proportional group scaling
   const handleScaleApply = useCallback(() => {
     if (selectedTaskIds.length === 0 || isNaN(scalePercentage) || !onTaskUpdate) return;
     
     const scaleFactor = parseFloat(scalePercentage) / 100;
     if (scaleFactor < 0) return;
 
-    const updatedData = roadmapData.map(task => {
-      if (!selectedTaskIds.includes(task.id)) {
-        return task;
-      }
-      
-      const originalStart = new Date(task.start);
-      const originalEnd = new Date(task.end);
-      let newEnd;
+    const selectedTasks = roadmapData.filter(task => selectedTaskIds.includes(task.id));
+    if (selectedTasks.length === 0) return;
+
+    // 1. Find the entire group's start date (the anchor)
+    const groupStartDate = new Date(Math.min(...selectedTasks.map(t => new Date(t.start).getTime())));
+
+    const updates = {};
+
+    // 2. Calculate new dates for each task based on its relative position
+    selectedTasks.forEach(task => {
+      const originalTaskStart = new Date(task.start);
+      const originalTaskEnd = new Date(task.end);
+      let newStartDate, newEndDate;
 
       if (respectWeekends) {
-        const currentDuration = calculateWorkingDaysDuration(originalStart, originalEnd, workingDays);
-        const newDuration = Math.max(1, Math.round(currentDuration * scaleFactor));
-        newEnd = addWorkingDays(originalStart, newDuration - 1, workingDays);
+        // Calculate offset and duration in working days
+        const offsetWorkingDays = calculateWorkingDaysDuration(groupStartDate, originalTaskStart, workingDays) - 1;
+        const durationWorkingDays = calculateWorkingDaysDuration(originalTaskStart, originalTaskEnd, workingDays);
+
+        // Scale them
+        const newOffsetWorkingDays = Math.round(offsetWorkingDays * scaleFactor);
+        const newDurationWorkingDays = Math.max(1, Math.round(durationWorkingDays * scaleFactor));
+
+        // Calculate new dates from the anchor point
+        newStartDate = addWorkingDays(groupStartDate, newOffsetWorkingDays, workingDays);
+        newEndDate = addWorkingDays(newStartDate, newDurationWorkingDays - 1, workingDays);
+
       } else {
-        const currentDurationMs = originalEnd.getTime() - originalStart.getTime();
-        const currentDurationDays = Math.round(currentDurationMs / MS_PER_DAY) + 1;
-        const newDurationDays = Math.max(1, Math.round(currentDurationDays * scaleFactor));
+        // Calculate offset and duration in calendar days
+        const offsetDays = (originalTaskStart.getTime() - groupStartDate.getTime()) / MS_PER_DAY;
+        const durationDays = (originalTaskEnd.getTime() - originalTaskStart.getTime()) / MS_PER_DAY + 1;
+
+        // Scale them
+        const newOffsetDays = Math.round(offsetDays * scaleFactor);
+        const newDurationDays = Math.max(1, Math.round(durationDays * scaleFactor));
         
-        newEnd = new Date(originalStart.getTime());
-        newEnd.setDate(originalStart.getDate() + newDurationDays - 1);
+        // Calculate new dates from the anchor point
+        newStartDate = new Date(groupStartDate.getTime());
+        newStartDate.setDate(newStartDate.getDate() + newOffsetDays);
+        
+        newEndDate = new Date(newStartDate.getTime());
+        newEndDate.setDate(newEndDate.getDate() + newDurationDays - 1);
       }
-
-      return { ...task, end: newEnd.toISOString().split('T')[0] };
+      
+      updates[task.id] = { ...task, start: newStartDate.toISOString().split('T')[0], end: newEndDate.toISOString().split('T')[0] };
     });
-
+    
+    // 3. Apply all updates at once
+    const updatedData = roadmapData.map(task => updates[task.id] || task);
     onTaskUpdate(updatedData);
     setSelectedTaskIds([]);
 
