@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 
 // --- Constants & Defaults ---
@@ -6,9 +7,9 @@ const BAR_HEIGHT = 20;
 const LABEL_WIDTH = 100;
 const RESIZE_HANDLE_WIDTH = 8;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
-const HEADER_HEIGHT = 50;
+const HEADER_HEIGHT = 70; // --- MODIFIED --- Increased height for month labels
 const PADDING_TOP = 10;
-const CONTROLS_HEIGHT = 40;
+const CONTROLS_HEIGHT = 40; 
 const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // Mon, Tue, Wed, Thu, Fri
 const MINIMUM_TIMELINE_DAYS = 31;
 
@@ -131,9 +132,9 @@ export default function SVGTimeline({
     const width = Math.max(pixelsPerDay / 2, dateToX(task.end) - dateToX(task.start) + pixelsPerDay);
     const y = yIndex * TRACK_HEIGHT + 10 + HEADER_HEIGHT + PADDING_TOP + CONTROLS_HEIGHT;
     return { x, y, width, height: BAR_HEIGHT };
-  }, [visibleTasks, dateToX, pixelsPerDay]);
+  }, [visibleTasks, dateToX, pixelsPerDay, HEADER_HEIGHT, CONTROLS_HEIGHT, PADDING_TOP]);
   
-  // --- Event Handlers (Unchanged logic for mousedown, mousemove, mouseup) ---
+  // --- Event Handlers (Unchanged logic) ---
   const handleMouseDown = (e, task, type) => {
     e.preventDefault();
     e.stopPropagation();
@@ -235,7 +236,6 @@ export default function SVGTimeline({
     }
   }, [selectionBox, dragState, tempUpdates, roadmapData, onTaskUpdate, visibleTasks, getTaskGeometry]);
 
-  // --- MODIFIED --- This function is rewritten for proportional group scaling
   const handleScaleApply = useCallback(() => {
     if (selectedTaskIds.length === 0 || isNaN(scalePercentage) || !onTaskUpdate) return;
     
@@ -245,55 +245,35 @@ export default function SVGTimeline({
     const selectedTasks = roadmapData.filter(task => selectedTaskIds.includes(task.id));
     if (selectedTasks.length === 0) return;
 
-    // 1. Find the entire group's start date (the anchor)
     const groupStartDate = new Date(Math.min(...selectedTasks.map(t => new Date(t.start).getTime())));
-
     const updates = {};
 
-    // 2. Calculate new dates for each task based on its relative position
     selectedTasks.forEach(task => {
       const originalTaskStart = new Date(task.start);
       const originalTaskEnd = new Date(task.end);
       let newStartDate, newEndDate;
-
       if (respectWeekends) {
-        // Calculate offset and duration in working days
         const offsetWorkingDays = calculateWorkingDaysDuration(groupStartDate, originalTaskStart, workingDays) - 1;
         const durationWorkingDays = calculateWorkingDaysDuration(originalTaskStart, originalTaskEnd, workingDays);
-
-        // Scale them
         const newOffsetWorkingDays = Math.round(offsetWorkingDays * scaleFactor);
         const newDurationWorkingDays = Math.max(1, Math.round(durationWorkingDays * scaleFactor));
-
-        // Calculate new dates from the anchor point
         newStartDate = addWorkingDays(groupStartDate, newOffsetWorkingDays, workingDays);
         newEndDate = addWorkingDays(newStartDate, newDurationWorkingDays - 1, workingDays);
-
       } else {
-        // Calculate offset and duration in calendar days
         const offsetDays = (originalTaskStart.getTime() - groupStartDate.getTime()) / MS_PER_DAY;
         const durationDays = (originalTaskEnd.getTime() - originalTaskStart.getTime()) / MS_PER_DAY + 1;
-
-        // Scale them
         const newOffsetDays = Math.round(offsetDays * scaleFactor);
         const newDurationDays = Math.max(1, Math.round(durationDays * scaleFactor));
-        
-        // Calculate new dates from the anchor point
         newStartDate = new Date(groupStartDate.getTime());
         newStartDate.setDate(newStartDate.getDate() + newOffsetDays);
-        
         newEndDate = new Date(newStartDate.getTime());
         newEndDate.setDate(newEndDate.getDate() + newDurationDays - 1);
       }
-      
       updates[task.id] = { ...task, start: newStartDate.toISOString().split('T')[0], end: newEndDate.toISOString().split('T')[0] };
     });
     
-    // 3. Apply all updates at once
     const updatedData = roadmapData.map(task => updates[task.id] || task);
     onTaskUpdate(updatedData);
-    setSelectedTaskIds([]);
-
   }, [selectedTaskIds, scalePercentage, roadmapData, onTaskUpdate, respectWeekends, workingDays]);
 
   useEffect(() => {
@@ -306,7 +286,46 @@ export default function SVGTimeline({
       document.body.style.cursor = 'default';
     };
   }, [dragState, selectionBox, handleMouseMove, handleMouseUp]);
-  
+
+  // --- NEW --- `useMemo` to calculate month labels and positions
+  const monthLabels = useMemo(() => {
+    if (!totalDays || !timelineStartDate) return [];
+    
+    const months = [];
+    const currentDate = new Date(timelineStartDate);
+    
+    for (let i = 0; i < Math.ceil(totalDays); i++) {
+        const month = currentDate.toLocaleString('default', { month: 'long' });
+        const year = currentDate.getFullYear();
+        const monthYear = `${month} ${year}`;
+
+        const lastMonth = months[months.length - 1];
+        if (!lastMonth || lastMonth.id !== monthYear) {
+            months.push({
+                id: monthYear,
+                name: month,
+                year: year,
+                x: dateToX(currentDate),
+                width: 0 // Will be calculated later
+            });
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    months.forEach((month, index) => {
+        if (index + 1 < months.length) {
+            month.width = months[index + 1].x - month.x;
+        } else {
+            // Last month extends to the end of the timeline
+            const timelineEnd = new Date(timelineStartDate);
+            timelineEnd.setDate(timelineEnd.getDate() + totalDays);
+            month.width = dateToX(timelineEnd) - month.x;
+        }
+    });
+
+    return months;
+  }, [timelineStartDate, totalDays, dateToX]);
+
   const height = (TRACK_HEIGHT * visibleTasks.length) + HEADER_HEIGHT + PADDING_TOP + CONTROLS_HEIGHT;
   const tasksToRender = useMemo(() => visibleTasks.map(task => tempUpdates[task.id] || task), [visibleTasks, tempUpdates]);
   const selectionBoxRect = useMemo(() => {
@@ -323,7 +342,6 @@ export default function SVGTimeline({
     </g>
   );
   
-  // --- The rest of the component's JSX is unchanged. ---
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", boxSizing: 'border-box' }}>
       <svg ref={svgRef} width={containerWidth} height={height} style={{ border: "1px solid #ccc", display: 'block', borderRadius: '8px' }} onMouseDown={handleContainerMouseDown}>
@@ -379,7 +397,27 @@ export default function SVGTimeline({
             )}
           </g>
           
+          {/* --- MODIFIED --- Timeline Header rendering logic */}
           <g className="timeline-header" transform={`translate(${LABEL_WIDTH}, ${CONTROLS_HEIGHT})`}>
+            {/* --- NEW --- Render month labels */}
+            {monthLabels.map(month => (
+              <g key={month.id}>
+                <text 
+                  x={month.x + month.width / 2} 
+                  y="20" 
+                  fontFamily="sans-serif"
+                  fontSize="14"
+                  fontWeight="bold"
+                  fill="#555"
+                  textAnchor="middle"
+                >
+                  {month.name} {month.year}
+                </text>
+                <line x1={month.x} y1="30" x2={month.x + month.width} y2="30" stroke="#ccc" />
+              </g>
+            ))}
+
+            {/* Render day labels */}
             {Array.from({ length: Math.ceil(totalDays) }).map((_, i) => {
                 const date = new Date(timelineStartDate);
                 date.setDate(date.getDate() + i);
@@ -387,10 +425,10 @@ export default function SVGTimeline({
                 const isWeekend = !workingDays.includes(date.getDay());
                 return (
                     <g key={`day-tick-${i}`}>
-                        {isWeekend && <rect x={x} y={HEADER_HEIGHT - 30} width={pixelsPerDay} height={height - PADDING_TOP - CONTROLS_HEIGHT - (HEADER_HEIGHT - 30)} fill="#f9f9f9" />}
-                        <line x1={x} y1={HEADER_HEIGHT - 30} x2={x} y2={height - PADDING_TOP - CONTROLS_HEIGHT} stroke="#e0e0e0" />
-                        <text x={x + 4} y={HEADER_HEIGHT - 20} fontSize="10" fontFamily="sans-serif" fill={isWeekend ? "#c62828" : "#777"} fontWeight={isWeekend ? "bold" : "normal"}>{['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}</text>
-                        <text x={x + 4} y={HEADER_HEIGHT - 5} fontSize="10" fontFamily="sans-serif" fill="#777">{date.getDate()}</text>
+                        {isWeekend && <rect x={x} y={30} width={pixelsPerDay} height={height - PADDING_TOP - CONTROLS_HEIGHT - 30} fill="#f9f9f9" />}
+                        <line x1={x} y1={30} x2={x} y2={height - PADDING_TOP - CONTROLS_HEIGHT} stroke="#e0e0e0" />
+                        <text x={x + 4} y={45} fontSize="10" fontFamily="sans-serif" fill={isWeekend ? "#c62828" : "#777"} fontWeight={isWeekend ? "bold" : "normal"}>{['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}</text>
+                        <text x={x + 4} y={60} fontSize="10" fontFamily="sans-serif" fill="#777">{date.getDate()}</text>
                     </g>
                 );
             })}
