@@ -7,7 +7,7 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
  import ChatInterface from './chatbot/ChatInterface';
 import RoadmapEdit from './chatbot/RoadmapEdit';
 import  SVGTimeline from './chatbot/SVGTimeline';
-
+import { useUndoRedo } from '../hooks/useUndoRedo'; 
 import { Context } from '../Context';
 import * as fileUtils from './utils/fileUtils';
 import './PlannerApp.css';
@@ -126,14 +126,31 @@ export default  function PlannerApp() {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [gesamtPrompt, setGesamtPrompt] = useState("");
-  const [roadmapData, setRoadmapData] = useState([]);
+  // const [roadmapData, setRoadmapData] = useState([]);
   const [roadmapToday, setRoadmapToday] = useState([]);
   const [roadmapContext, setRoadmapContext] = useState('');
   
   const [projectStartDate, setProjectStartDate] = useState('');
   const [workDays, setWorkDays] = useState(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
   const [projectPeriod, setProjectPeriod] = useState(4); 
-
+  const initialRoadmapData = []; 
+  const {
+    state: roadmapData,
+    setState: setRoadmapData,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useUndoRedo(initialRoadmapData);
+  
+  // This function is passed to the timeline and other components.
+  // When they call it, a new state is automatically saved to our history.
+  const handleTaskUpdate = (newRoadmapData) => {
+    setRoadmapData(newRoadmapData);
+  };
+  
+  // Example state for the 'Show Completed' toggle, managed locally
+  const [showCompleted, setShowCompleted] = React.useState(true);
   const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
@@ -385,6 +402,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
   return (
     <div className="app-container">
+   
       <div id="part1" style={{ display: "block" }}>
         <h2>{aiData?.app_Headline1}</h2>
         <div id="form-all-id">
@@ -449,9 +467,22 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
     className="component-wrapper"
    >
         <h2>Interactive SVG Timeline</h2>
+           <div className="controls-bar" style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+        <button onClick={undo} disabled={!canUndo}>
+          Undo
+        </button>
+        <button onClick={redo} disabled={!canRedo}>
+          Redo
+        </button>
+      </div>
         <SVGTimeline 
+        //   roadmapData={roadmapData} 
+      
          roadmapData={timelineCompatibleData} 
           onTaskUpdate={handleRoadmapUpdate} 
+             
+        showCompleted={showCompleted}
+        onToggleShowCompleted={() => setShowCompleted(p => !p)}
 
            style={{ minWidth: "100%" }}
         />

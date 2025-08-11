@@ -1,3 +1,4 @@
+
 // --- START OF FILE App.jsx ---
 
 import React, { useState, useEffect, useContext, useMemo } from 'react';
@@ -12,6 +13,35 @@ import * as fileUtils from './utils/fileUtils';
 import './PlannerApp.css';
 
 
+// --- NEW: Helper function copied from RoadmapEdit to be used here ---
+const expandTasksToDailyView = (tasks) => {
+  const dailyTasks = [];
+  if (!tasks) return dailyTasks;
+  
+  tasks.forEach(task => {
+    const duration = task.durationDays || 1;
+    if (duration <= 1) {
+      dailyTasks.push({ ...task, originalId: task.id, isExpanded: false });
+    } else {
+      for (let i = 0; i < duration; i++) {
+        const taskDate = new Date(task.date);
+        taskDate.setHours(12,0,0,0); // Avoid timezone issues
+        taskDate.setDate(taskDate.getDate() + i);
+        
+        dailyTasks.push({
+          ...task,
+          id: `${task.id}-day-${i}`, 
+          originalId: task.id,
+          date: taskDate.toISOString().split('T')[0],
+          task: `${task.task} (Day ${i + 1}/${duration})`,
+          durationDays: 1,
+          isExpanded: true,
+        });
+      }
+    }
+  });
+  return dailyTasks;
+};
 
 
 // This function remains the same
@@ -111,28 +141,16 @@ export default  function PlannerApp() {
     setRoadmapContext(contextString);
   }, [roadmapData]);
   
-  // --- UPDATED: This logic now correctly finds tasks active today ---
+  // --- MODIFIED: This logic is now much simpler and more accurate ---
   useEffect(() => {
-    const todayDate = new Date(today);
-    // Set to midday to avoid timezone issues with date comparisons
-    todayDate.setHours(12, 0, 0, 0);
+    // 1. First, expand all multi-day tasks into a flat list of single-day instances.
+    const allDailyInstances = expandTasksToDailyView(roadmapData);
+    
+    // 2. Then, simply filter that list for tasks that match today's date.
+    const tasksForToday = allDailyInstances.filter(task => task.date === today);
 
-    const todayTasks = roadmapData.filter(item => {
-      if (!item.date) return false;
-      
-      const startDate = new Date(item.date);
-      startDate.setHours(12, 0, 0, 0);
-
-      // Calculate the end date based on duration
-      const endDate = new Date(startDate);
-      const duration = item.durationDays || 1;
-      endDate.setDate(startDate.getDate() + duration - 1);
-
-      // Check if today is between the start and end date (inclusive)
-      return todayDate >= startDate && todayDate <= endDate;
-    });
-
-    setRoadmapToday(todayTasks);
+    // 3. Set the state. The `RoadmapEdit` component will now receive correctly formatted daily tasks.
+    setRoadmapToday(tasksForToday);
   }, [roadmapData, today]);
 
 // [THE FIX] Define the constant here
@@ -398,7 +416,13 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
       <div id="part2" style={{ display: "block" }}>
         {roadmapToday.length > 0 ? (
-          <RoadmapEdit titleDisplay2='block' titleDisplay3='none' roadmapData={roadmapToday} isToday={true} />
+          <RoadmapEdit 
+            titleDisplay2='block' 
+            titleDisplay3='none' 
+            roadmapData={roadmapToday} 
+            isToday={true} 
+            onRoadmapUpdate={handleRoadmapUpdate} 
+          />
         ) : (
           <div className="info-box">
             {(aiData?.chat_noTasksToday || 'No Tasks for today! ({today})').replace('{today}', today)}
@@ -439,5 +463,3 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
     </div>
   );
 }
-
-// export default PlannerApp;
