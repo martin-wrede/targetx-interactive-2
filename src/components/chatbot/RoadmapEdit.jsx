@@ -451,11 +451,14 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                 <button
                     onClick={() => showDeleteConfirmation(item)}
                     className="icon-button delete-button"
+                    style={{width:"48px", height:"48px" 
+
+                    }}
                     title="Delete"
                     disabled={isNew || item.isExpanded}
                 >
                     <TrashOutline  
-                         style={{width:"30px"}}
+                         style={{width:"25px"}}
                     className="h-5 w-5" />
                 </button>
               </div>

@@ -419,9 +419,9 @@
   flex-shrink: 0;
   padding: 0; /* Remove padding to rely on fixed size */
   border: none;
-  border-radius: 8px; /* Uniform rounded corners */
+  border-radius: 4px; /* Uniform rounded corners */
   cursor: pointer;
-  font-size: 16px; /* Uniform icon size */
+/*  font-size: 16px; /* Uniform icon size */
   
 }
 
