@@ -1,9 +1,28 @@
 // --- START OF FILE RoadmapEdit-daily-block-view.jsx ---
 
-// --- START OF FILE RoadmapEdit.jsx ---
 
-import React, { useState, useContext, useEffect, useMemo } from 'react'; // --- UPDATED: Imported useMemo
- // import './Roadmap.css';
+import React, { useState, useContext, useEffect, useMemo } from 'react';
+
+// --- UPDATED: Imported all necessary icons from Heroicons ---
+import {
+  CheckCircleIcon as CheckCircleSolid,
+  PlusIcon as PlusSolid,
+  CalendarDaysIcon as  CalendarDaysSolid,
+  RectangleStackIcon as RectangleStackSolid
+} from '@heroicons/react/24/solid';
+import {
+  CheckCircleIcon as CheckCircleOutline,
+  XCircleIcon as XCircleOutline,
+    PlusCircleIcon as PlusCircleOutline,
+  CalendarDaysIcon as  CalendarDaysOutline,
+  RectangleStackIcon as RectangleStackOutline,
+  TrashIcon  as  TrashOutline,
+  PencilSquareIcon  as PencilSquareOutline,
+  XMarkIcon as XMarkOutline,
+  CheckIcon  as CheckOutline,
+} from '@heroicons/react/24/outline';
+
+
 import './RoadmapEdit.css'; // Your dedicated CSS for edit components
 import { Context } from '../../Context';
 
@@ -75,6 +94,10 @@ const generateICS = (roadmapData, labels, exportAsDaily) => {
   const icsHeader = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AI Coach//Roadmap//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH`;
   const icsFooter = `END:VCALENDAR`;
   let events = '';
+  
+  // CORRECTED: Use the actual emoji character. Calendar files are plain text
+  // and cannot render React components.
+  const checkmarkEmoji = '✅';
 
   if (exportAsDaily) {
     // --- DAILY VIEW EXPORT: Create a separate timed event for each day ---
@@ -94,7 +117,7 @@ const generateICS = (roadmapData, labels, exportAsDaily) => {
       const endDateStr = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
       
       const isCompleted = item.completed;
-      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
+      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? checkmarkEmoji + ' ' : ''}${item.task}`;
       const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.startTimeLabel || 'START TIME'}: ${item.dailyStartTime || '10:00'}\\n${labels?.durationLabel || 'DURATION'}: ${item.dailyHours || 1} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
       
       return `BEGIN:VEVENT\nUID:${item.id}@aicoach.com\nDTSTART:${startDateStr}\nDTEND:${endDateStr}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nCATEGORIES:AI Coach,Personal Development\nSTATUS:CONFIRMED\nTRANSP:OPAQUE\nEND:VEVENT\n`;
@@ -117,7 +140,7 @@ const generateICS = (roadmapData, labels, exportAsDaily) => {
       const endDateStr = formatDateForICS(endDate);
       
       const isCompleted = item.completed;
-      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? '✅ ' : ''}${item.task}`;
+      const summary = `${labels?.calendarEventPrefix || 'AI Coach'}: ${isCompleted ? checkmarkEmoji + ' ' : ''}${item.task}`;
       const totalHours = (item.dailyHours || 1) * durationDays;
       const description = `${labels?.taskLabel || 'Task'}: ${isCompleted ? '[Completed] ' : ''}${item.task}\\n\\n${labels?.taskDurationDaysLabel || 'DURATION'}: ${durationDays} day(s)\\n${labels?.taskDurationLabel || 'TOTAL DURATION'}: ${totalHours.toFixed(1)} ${labels?.hoursLabel || 'hours'}\\n\\n${labels?.motivationLabel || 'Motivation'}: ${item.motivation}`;
       
@@ -142,6 +165,7 @@ const generateGoogleCalendarUrl = (task, data) => {
   const endDateStr = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   
   const isCompleted = !!task.completed; 
+  // CORRECTED: Use the actual emoji character here as well.
   const prefix = isCompleted ? '✅ ' : '';
   const label = isCompleted ? '[Completed] ' : '';
 
@@ -352,10 +376,21 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
            {!isToday && (
             <>
               <button onClick={() => setShowDailyTasks(prev => !prev)} className="viewToggleButton">
-                {showDailyTasks ? '🗂️ ' + (data.roadmapLabels?.showTaskBlocks || 'Show Task Blocks') : '🗓️ ' + (data.roadmapLabels?.showDailyView || 'Show Daily View')}
+                {showDailyTasks ? 
+                  <><RectangleStackOutline 
+                  
+                  
+                  style={{width:"25px"}} 
+                  className="h-5 w-5 mr-1" /> {data.roadmapLabels?.showTaskBlocks || 'Show Task Blocks'}</> :
+                  <><CalendarDaysOutline 
+                    style={{width:"25px"}} 
+                  className="h-5 w-5 mr-1" /> {data.roadmapLabels?.showDailyView || 'Show Daily View'}</>
+                }
               </button>
               <button onClick={addNewTask} className="addNewButton">
-                ➕ {data.roadmapLabels?.addNewTask || 'Add New Task'}
+                <PlusCircleOutline 
+                style={{width:"25px"}}              
+                  className="h-5 w-5 mr-1" /> {data.roadmapLabels?.addNewTask || 'Add New Task'}
               </button>
             </>
            )}
@@ -363,7 +398,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
            <br/> <br/>
 
           <button style={{marginBottom:"10px"}} onClick={downloadICS} className="exportButton">
-            📅 {data.roadmapLabels?.downloadICS || 'Download ICS'}
+            <CalendarDaysOutline  className="h-5 w-5 mr-1" /> {data.roadmapLabels?.downloadICS || 'Download ICS'}
           </button>
            
            {/* --- UPDATED: Text is now dynamic based on the view mode --- */}
@@ -400,23 +435,28 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                   )}
                 </div>
 
-
-<button
-    onClick={() => toggleTaskComplete(originalTaskId)}
-    className={`icon-button complete-button-edit header-center-button ${isCompleted ? 'active' : 'inactive'}`}
-    title={isCompleted ? "Mark as Incomplete" : "Mark as Complete"}
-    disabled={isNew}
->
-    {isCompleted ? '✅' : '⭕'}
-</button>
+                {/* --- UPDATED: Replaced emojis with Heroicons --- */}
+                <button
+                    onClick={() => toggleTaskComplete(originalTaskId)}
+                    className={`icon-button complete-button-edit header-center-button ${isCompleted ? 'active' : 'inactive'}`}
+                    title={isCompleted ? "Mark as Incomplete" : "Mark as Complete"}
+                    disabled={isNew}
+                >
+                    {isCompleted ? 
+                      <CheckCircleSolid className="h-6 w-6 text-green-500" /> : 
+                      <CheckCircleOutline className="h-6 w-6 text-gray-400" />
+                    }
+                </button>
 
                 <button
                     onClick={() => showDeleteConfirmation(item)}
                     className="icon-button delete-button"
                     title="Delete"
-                    disabled={isNew || item.isExpanded} // Disable for new tasks and expanded daily instances
+                    disabled={isNew || item.isExpanded}
                 >
-                    🗑️
+                    <TrashOutline  
+                         style={{width:"30px"}}
+                    className="h-5 w-5" />
                 </button>
               </div>
               
@@ -486,11 +526,17 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                   {data.roadmapLabels?.taskLabel || 'TASK'}
                   {isEditing ? (
                     <div className="button-container">
-                      <button onClick={() => saveTask(originalTaskId)} className="icon-button save-button" title="Save">✓</button>
-                      <button onClick={cancelEditing} className="icon-button cancel-button" title="Cancel">✕</button>
+                      <button onClick={() => saveTask(originalTaskId)} className="icon-button save-button" title="Save">
+                        <CheckCircleOutline className="h-5 w-5" />
+                      </button>
+                      <button onClick={cancelEditing} className="icon-button cancel-button" title="Cancel">
+                        <XCircleOutline  className="h-5 w-5" />
+                      </button>
                     </div>
                   ) : (
-                    <button onClick={() => startEditing(item)} className="icon-button edit-button" title="Edit">✎</button>
+                    <button onClick={() => startEditing(item)} className="icon-button edit-button" title="Edit">
+                      <PencilSquareOutline  className="h-5 w-5" />
+                    </button>
                   )}
                 </div>
                 {isEditing ? (
@@ -510,7 +556,9 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
               </div>
                 
               <a href={generateGoogleCalendarUrl(item, data)} target="_blank" rel="noopener noreferrer" className={`googleCalendarLink ${isNew ? 'disabled-link' : ''}`}>
-                📅 {data.roadmapLabels?.addToGoogleCalendar || 'Add to Google Calendar'}
+                <CalendarDaysOutline 
+                 style={{width:"30px"}}
+                  className="h-5 w-5 mr-1"/> {data.roadmapLabels?.addToGoogleCalendar || 'Add to Google Calendar'}
               </a>
             </div>
           );
