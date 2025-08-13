@@ -420,7 +420,7 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
           
           return (
             <div key={item.id} className={`card ${isCompleted ? 'cardCompleted' : ''} ${isNew ? 'card-new' : ''}`}>
-            <div className="cardHeader">
+              <div className="cardHeader">
                 <div className="dateInfo">
                   {isEditing ? (
                     <div className="editable-date-container">
@@ -443,38 +443,24 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                     disabled={isNew}
                 >
                     {isCompleted ? 
-                      <CheckCircleSolid 
-                      className="h-6 w-6 text-green-500" /> : 
+                      <CheckCircleSolid className="h-6 w-6 text-green-500" /> : 
                       <CheckCircleOutline className="h-6 w-6 text-gray-400" />
                     }
                 </button>
-               
-                  
- 
-                <button  onClick={() => showDeleteConfirmation(item)}          className="icon-button edit-button" title="delete"
-                         disabled={isNew || item.isExpanded}
-                  >
-                      <TrashOutline
-                      style={{width:"25px"}}
-                      className="h-5 w-5" />
-                    </button>
-                  
-                {/** 
+
                 <button
                     onClick={() => showDeleteConfirmation(item)}
                     className="icon-button delete-button"
-                   
+                    style={{width:"48px", height:"48px" 
+
+                    }}
                     title="Delete"
                     disabled={isNew || item.isExpanded}
                 >
-
-                    <TrashOutline
-                     style={{width:"25px"}}
+                    <TrashOutline  
+                         style={{width:"25px"}}
                     className="h-5 w-5" />
                 </button>
-                */}
-                   
-                    
               </div>
               
               <div className="timeSection">

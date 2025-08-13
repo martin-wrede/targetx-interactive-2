@@ -1,12 +1,4 @@
-/* --- START OF FILE RoadmapEdit.css --- */
-
-/* ... (previous CSS rules) ... */
-
-
-/* --- UPDATED: Modify the .delete-button and its hover state --- */
-
-
-/* ... (rest of the CSS file is unchanged) ... *//* RoadmapEdit CSS - Centralized and Uniform Button Styles */
+/* RoadmapEdit CSS - Centralized and Uniform Button Styles */
 
 /* Roadmap CSS */
 
@@ -434,7 +426,7 @@
 }
 
 .icon-button:hover {
-  transform: translateY(px);
+  transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -466,18 +458,26 @@
 }
 
 
+
 .delete-button {
-  background-color: #fef2f2;
-  color: #dc2626;
+  color: #dc2626; /* Keep the icon red for clear "delete" UX */
+  background-color: transparent; /* Make the default background transparent */
+  border: 1px solid transparent; /* ADD THIS to prevent layout shift on hover */
+  
+  /* These are good, keep them */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; 
 }
 
-/* This is the HOVER state. We will change this rule. */
+
 .delete-button:hover {
-  background-color: #f3f4f6;
-  color: #4f46e5;
+  background-color: #ffffff; /* Set background to white on hover */
+  border: 1px solid #4f46e5; /* Add the desired blue border on hover */
+  color: #4f46e5; /* Optional: change icon color to match the border */
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); /* Optional: add a soft glow like other focused elements */
 }
-
-
 
 .cancel-button {
   background-color: #fef2f2; /* Same as delete for consistency */
