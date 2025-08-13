@@ -14,7 +14,7 @@ import {
   RectangleStackIcon as RectangleStackOutline,
   TrashIcon as TrashOutline,
   PencilSquareIcon as PencilSquareOutline,
-  XMarkIcon as XMarkOutline, // Correctly aliased
+  XMarkIcon as XMarkOutline,
   CheckIcon as CheckOutline,
   ArrowUpTrayIcon,
   DocumentIcon,
@@ -68,9 +68,7 @@ const ChatInterface = ({
               
               {message.role === 'assistant' && message.importedEvents > 0 && (
                  <div className="import-success-indicator">
-                    <CheckCircleOutline 
-                     style={{width:"25px"}} 
-                    className="h-5 w-5" /> {(data?.chat_importedToRoadmap || '{count} Termine automatisch in den Projektplan importiert').replace('{count}', message.importedEvents)}
+                    <CheckCircleOutline className="h-5 w-5" /> {(data?.chat_importedToRoadmap || '{count} Termine automatisch in den Projektplan importiert').replace('{count}', message.importedEvents)}
                  </div>
               )}
               
@@ -79,9 +77,8 @@ const ChatInterface = ({
                   <h4>{data?.chat_downloadFilesLabel || 'Download-Dateien:'}</h4>
                   {message.downloadLinks.map((link, linkIndex) => (
                     <button key={linkIndex} onClick={link.download} className="download-button">
-                      <ArrowDownTrayIcon
-                       style={{width:"25px"}} 
-                       className="h-4 w-4" /> {link.filename}
+                      {/* --- UPDATED ICON --- */}
+                      <ArrowDownTrayIcon className="h-4 w-4" /> {link.filename}
                     </button>
                   ))}
                 </div>
@@ -96,10 +93,8 @@ const ChatInterface = ({
       <div className="file-section">
         <div className="file-upload-header">
           <label className="upload-button">
-            <ArrowUpTrayIcon 
-             style={{width:"25px"}} 
-            
-            className="h-5 w-5" />
+            {/* --- UPDATED ICON --- */}
+            <ArrowUpTrayIcon className="h-5 w-5" />
             {data?.chat_uploadFilesLabel || 'Text- und Kalender-Dateien hochladen'}
             <input type="file" multiple accept=".txt,.ics,.json" onChange={handleFileUpload} className="file-input" />
           </label>
@@ -112,20 +107,16 @@ const ChatInterface = ({
               {uploadedFiles.map((file) => (
                 <div key={file.id} className="file-item">
                   <div className="file-info">
-                    <DocumentIcon
-                     style={{width:"25px"}} 
-                    className="h-5 w-5" />
+                    {/* --- UPDATED ICON --- */}
+                    <DocumentIcon className="h-5 w-5" />
                     <div className="file-details">
                       <div className="file-name">{file.name}</div>
                       <div className="file-meta">{formatFileSize(file.size)} • {file.type}</div>
                     </div>
                   </div>
                   <button onClick={() => deleteFile(file.id)} className="delete-button" title="Datei löschen">
-                    {/* --- FIXED ICON --- */}
-                    <XMarkOutline 
-                     style={{width:"25px"}} 
-                    
-                    className="h-4 w-4" />
+                    {/* --- UPDATED ICON --- */}
+                    <XMarkIcon className="h-4 w-4" />
                   </button>
                 </div>
               ))}

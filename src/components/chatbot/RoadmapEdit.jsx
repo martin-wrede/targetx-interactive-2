@@ -538,7 +538,9 @@ export default function Roadmap({ roadmapData, onRoadmapUpdate, titleDisplay2, t
                     </div>
                   ) : (
                     <button onClick={() => startEditing(item)} className="icon-button edit-button" title="Edit">
-                      <PencilSquareOutline  className="h-5 w-5" />
+                      <PencilSquareOutline  
+                      style={{width:"25px"}}
+                      className="h-5 w-5" />
                     </button>
                   )}
                 </div>
